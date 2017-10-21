@@ -215,12 +215,28 @@ process_while:                 #     while ( end_of_sentence == false ) {
 	                       #
 	addi $s0, $s0, 1       #         input_index++;
 	                       #
+                               #
+	                       #         // Check if it is a valid character
+                               #         $v0 = is_valid_character(
+        lb $a0, ($s5)          #              cur_char
+        jal is_valid_character #         );
+                               #
+        move $s6, $v0          #         is_valid_ch = $v0
+        
         # OUR SHIT NOW
             # print character
             li $v0, 11
             lb $a0, ($s5)
             syscall
-            
+            # print is_valid
+            li $v0, 1
+            move $a0, $s6
+            syscall
+            # print newline
+            la $a0, newline
+            li $v0, 11
+            lb $a0, ($a0)
+            syscall
         # END OF OUR SHIT
 	
 	# jump back to the beginning of the while loop
