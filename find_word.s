@@ -20,7 +20,12 @@
 read_input_prompt: .asciiz  "\nEnter input: "
 outputmsg:         .asciiz  "\noutput:\n"
 newline:           .asciiz  "\n"
-blyet:              .asciiz "======================================================================="
+blyet:             .asciiz  "======================================================================="
+                    # Use .ascii because we don't want an extra null character.
+nullchar:          .ascii   "\0" # Alternatively we could just do .asciiz ""
+
+        # I am not using false/true defines because 0/1 is easy enough.
+        # Also, that's a compile-time macro in C, not the storage of 0/1 in memory
         
         #------------------------------------------------------------------
         # Global variables in memory
@@ -161,7 +166,71 @@ is_hyphen:
 	seq $v0, $a0, 45       #     $v0 = (ch == 45)
 	jr $ra                 #     return $v0
 	                       # }
-
+	                       
+        #------------------------------------------------------------------
+        # process_input function
+        #------------------------------------------------------------------
+        # // This function processes character array pointed to by "inp".
+        # // It keeps processing "inp" till 
+        # //   either it finds a valid word OR
+        # //   it finds an end of a sentence
+        # //
+        # // If a valid word is found, it is stored at "w" and the function returns true.
+        # // If no word is found and the end of sentence is encountered, it returns false.
+        
+                               # int process_input(char* inp, char* w)
+                               # inp in $a0 ( to be $s3 )
+                               # w in $a1 ( to be $s4 )
+process_input:
+                               # {
+                               #     // NOTE: $s0, $s1, and $s2 are reserved!
+        # store $a0 in $s3, and $a0 in $s4
+        move $s3, $a0
+        move $s4, $a1
+        
+	# char cur_char = $s5
+	lb $s5, nullchar       #     char cur_char = '\0'; // $s5
+	
+	# bool is_valid_ch = $s6
+	move $s6, $0           #     int is_valid_ch = false; // $s6
+	                       #
+	# Indicates how many elements in "w" contains valid word characters
+	# int char_index = $s7
+	li $s7, -1             #     int char_index = -1; // $s7
+	                       #
+	                       #
+        # This loop runs until end of an input sentence is encountered or a valid word is extracted
+process_while:                 #     while ( end_of_sentence == false ) {
+                               #         // This means we continue if:
+                               #         // - end_of_sentence == false == 0
+                               #         // - continue if `eqz`
+                               #         // - KILL WHILE LOOP if `neqz`
+	bnez $s1, process_end  #
+                               #
+                               #         cur_char = inp[input_index];
+        # first get the offset, this is the memory address
+        add $t0, $s3, $s0      #         // address = inp + input_index;
+        # then get the character at the address
+        la $s5, ($t0)          #         // cur_char = *address;
+	                       #
+	addi $s0, $s0, 1       #         input_index++;
+	                       #
+        # OUR SHIT NOW
+            # print character
+            li $v0, 11
+            lb $a0, ($s5)
+            syscall
+            
+        # END OF OUR SHIT
+	
+	# jump back to the beginning of the while loop
+	j process_while
+                               
+            
+process_end:
+	li $v0, 0              #     $v0 = false;
+	jr $ra                 #     return $v0
+	                       # }
 
         #------------------------------------------------------------------
         # MAIN code block
@@ -195,17 +264,27 @@ main:
                                #     $v0 = read_input(
 	la $a0, input_sentence #         input_sentence,
 	jal read_input         #     );
-	
+	                       #
 	li $v0, 4              #     print_string(
 	la $a0, outputmsg      #         "\noutput:\n"
 	syscall                #     );
-	
-main_loop:                     #     do {
-                               #         output(
-	la $a0, input_sentence #             $v0
-	jal output             #         );
-	
 	                       #
+main_loop:                     #     do {
+                               #         $v0 = process_input(
+        la $a0, input_sentence #             input_sentence,
+        la $a1, word           #             word
+        jal process_input      #         );
+                               #
+        move $s2, $v0          #         word_found = $v0
+                               #
+        bne $s2, 1, main_wordnotfound #  if ( word_found == true ) {
+                               #
+                               #             output(
+        la $a0, word           #                 word
+        jal output             #             );
+                               #
+main_wordnotfound:             #         }
+                               #
 	                       #     } while ( word_found == true );
 	bnez $s2, main_loop    #     //
 	                       #     // We want to jump to the
@@ -213,8 +292,6 @@ main_loop:                     #     do {
 	                       #     // word_found == true     i.e when:
 	                       #     // word_found == 1        i.e when:
 	                       #     // word_found != 0
-
-
 main_end:                      #
         li   $v0, 10           #     return 0;
         syscall                # }
