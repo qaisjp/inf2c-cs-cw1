@@ -190,8 +190,8 @@ main:
 
                                # int is_main() {
                                #
+	li $s2, 0              #     int word_found = false; // $s2
                                #
-                               
                                #     $v0 = read_input(
 	la $a0, input_sentence #         input_sentence,
 	jal read_input         #     );
@@ -200,11 +200,18 @@ main:
 	la $a0, outputmsg      #         "\noutput:\n"
 	syscall                #     );
 	
-main_loop:	
-                               #     output(
-	la $a0, input_sentence #         $v0
-	jal output             #     );
+main_loop:                     #     do {
+                               #         output(
+	la $a0, input_sentence #             $v0
+	jal output             #         );
 	
+	                       #
+	                       #     } while ( word_found == true );
+	bnez $s2, main_loop    #     //
+	                       #     // We want to keep looping
+	                       #     // if word_found == true
+	                       #     // if word_found == 1
+	                       #     // if word_found != 0
 
 
 main_end:                      #
