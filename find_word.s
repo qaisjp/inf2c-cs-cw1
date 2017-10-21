@@ -208,10 +208,11 @@ main_loop:                     #     do {
 	                       #
 	                       #     } while ( word_found == true );
 	bnez $s2, main_loop    #     //
-	                       #     // We want to keep looping
-	                       #     // if word_found == true
-	                       #     // if word_found == 1
-	                       #     // if word_found != 0
+	                       #     // We want to jump to the
+	                       #     // beginning of the loop only when:
+	                       #     // word_found == true     i.e when:
+	                       #     // word_found == 1        i.e when:
+	                       #     // word_found != 0
 
 
 main_end:                      #
