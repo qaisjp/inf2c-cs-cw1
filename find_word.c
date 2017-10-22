@@ -83,11 +83,11 @@ int end_of_sentence = false;
 // If no word is found and the end of sentence is encountered, it returns false.
 int process_input(char* inp, char* w) {
 
-    char cur_char = '\0';
-    int is_valid_ch = false;
+    char cur_char = '\0'; // $s5
+    int is_valid_ch = false; // $s6
 
     // Indicates how many elements in "w" contains valid word characters
-    int char_index = -1;
+    int char_index = -1; // $s7
 
     while( end_of_sentence == false ) {
         // This loop runs until end of an input sentence is encountered or a valid word is extracted

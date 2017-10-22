@@ -44,9 +44,9 @@ MAX_WORD_LENGTH: .word 50
         #
         # char input_sentence[MAX_SENTENCE_LENGTH+1];
 input_sentence: .space 1001
-	#
 	# char word[MAX_WORD_LENGTH+1];
 word:           .space 51
+	#
 	#
 	#
         #==================================================================
@@ -200,44 +200,90 @@ process_input:
 	                       #
 	                       #
         # This loop runs until end of an input sentence is encountered or a valid word is extracted
-process_while:                 #     while ( end_of_sentence == false ) {
+process_while:                 #
+	bnez $s1, process_end  #     while ( end_of_sentence == false ) {
                                #         // This means we continue if:
                                #         // - end_of_sentence == false == 0
                                #         // - continue if `eqz`
                                #         // - KILL WHILE LOOP if `neqz`
-	bnez $s1, process_end  #
                                #
                                #         cur_char = inp[input_index];
         # first get the offset, this is the memory address
         add $t0, $s3, $s0      #         // address = inp + input_index;
         # then get the character at the address
-        la $s5, ($t0)          #         // cur_char = *address;
+        lb $s5, ($t0)          #         // cur_char = *address;
 	                       #
 	addi $s0, $s0, 1       #         input_index++;
 	                       #
                                #
 	                       #         // Check if it is a valid character
                                #         $v0 = is_valid_character(
-        lb $a0, ($s5)          #              cur_char
+        move $a0, $s5          #              cur_char
         jal is_valid_character #         );
                                #
         move $s6, $v0          #         is_valid_ch = $v0
+                               #
+        beqz $s6, process_invalidchar #  if ( is_valid_ch ) {
+                               #             w[++char_index] = cur_char;
+        addi $s7, $s7, 1       #             // char_index += 1
+        add $t0, $s4, $s7      #             // address = w + char_index
+        sb $s5, ($t0)          #             *address = cur_char
+                               #
+        j process_endifchar    #         }
+process_invalidchar:           #         else {
+                               #
+        seq $t0, $s5, 10       #             // $t0 = (cur_char == '\n')
+        seq $t1, $s5, 0        #             // $t1 = (cur_char == '\0')
+        or $t0, $t0, $t1       #             // $t0 = $t0 || $t1        // so now $t0 = cur_char == '\n' || cur_char == '\0'
+        beqz $t0, process_endif_endofsent #  if (cur_char == '\n' || cur_char == '\0') {
+                               #                 // Indicates an end of an input sentence
+        li $s1, 1              #                 end_of_sentence = true;
+process_endif_endofsent:       #             }
+                               #
+                               #
+        bltz $s7, process_endif_charindex #  if ( char_index >= 0 ) {
+        # // w has accumulated some valid characters. Thus, punctuation mark indicates a possible end of a word
+                               #
+                               
+process_if_checkhyphenated:    #
+        la $fp, ($ra)          #                 // HACK: abuse the frame pointer to store the original return address
+                               #
+                               #                 cur_char = inp[input_index];
+        # first get the offset, this is the memory address
+        add $t0, $s3, $s0      #                 // address = inp + input_index;
+        # then get the character at the address
+        lb $a0, ($t0)          #                 // $a0 = *address; // next_char
+        jal is_valid_character #                 $v0 = is_valid_character($a0)
+        move $v1, $v0          #                 $v1 = $v0 // (next_char = $v1) HACK: we don't use $v1 anywhere in is_hyphen, so we're going to misuse $v1
+                               #
+        lb $a0, ($s5)
+        jal is_hyphen
         
-        # OUR SHIT NOW
-            # print character
-            li $v0, 11
-            lb $a0, ($s5)
-            syscall
-            # print is_valid
-            li $v0, 1
-            move $a0, $s6
-            syscall
-            # print newline
-            la $a0, newline
-            li $v0, 11
-            lb $a0, ($a0)
-            syscall
-        # END OF OUR SHIT
+        and $t0, $v0, $v1
+                               #
+        la $ra ($fp)           #                 // (UN)HACK: return happiness to the return address
+        beqz $t0, process_endif_checkhyphenated #   if ( is_hyphen(cur_char) && is_valid_character(next_char) )
+                               #
+                               #                 {
+        # // check if the next character is also a valid character to detect hyphenated word.
+                               #
+                               #                     w[++char_index] = cur_char;
+        addi $s7, $s7, 1       #                     // char_index += 1
+        add $t0, $s4, $s7      #                     // address = w + char_index
+        sb $t0, ($s5)          #                     *address = cur_char
+                               #
+        j process_while        #                     continue
+                               #                 }
+process_endif_checkhyphenated:
+                               #
+        # // w has accumulated some valid characters. Thus, punctuation mark indicates an end of a word.
+                               #
+process_endif_charindex:       #             }
+
+                               #             // skip the punctuation mark
+        lb $s4, nullchar       #             w[0] = '\0';
+        li $s7, -1             #             char_index = -1;
+process_endifchar:             #         }
 	
 	# jump back to the beginning of the while loop
 	j process_while
