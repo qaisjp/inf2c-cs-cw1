@@ -60,7 +60,7 @@ void output(const char* out) {
 // returns true if an input character is a valid word character
 // returns false if an input character is any punctuation mark (including hyphen)
 int is_valid_char(char ch) {
-    return ( ch >= 'a' && ch <= 'z' ) {
+    if ( ch >= 'a' && ch <= 'z' ) {
         return true;
     } else if ( ch >= 'A' && ch <= 'Z' ) {
         return true;
@@ -72,12 +72,26 @@ int is_valid_char(char ch) {
 // take from find_word.c
 // returns true only if an input character is hyphen
 int is_hyphen(char ch) {
-    return ch == '-'
+    return ch == '-';
 }
 
 
 void process_input(char* inp, char* out) {
+    int inp_index = 0;
+    char cur_char = inp[inp_index];
 
+    // While an end of sentence character has not been encountered
+    while ((cur_char != '\n') && (cur_char != '\0')) {
+        int cur_char_valid = is_valid_char(cur_char);
+
+        printf("Current character, %c, is %s. It is %s a vowel.\n", cur_char, cur_char_valid ? "valid": "invalid", "?");
+
+        // Prepare variables for the next loop
+        inp_index += 1;
+        cur_char = inp[inp_index];
+    }
+
+    // Indicates the current index in "out"
 }
 
 
