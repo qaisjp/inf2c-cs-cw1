@@ -44,9 +44,9 @@ MAX_WORD_LENGTH: .word 50
         #
         # char input_sentence[MAX_SENTENCE_LENGTH+1];
 input_sentence: .space 1001
+	#
 	# char word[MAX_WORD_LENGTH+1];
 word:           .space 51
-	#
 	#
 	#
         #==================================================================
@@ -217,9 +217,11 @@ process_while:                 #
 	                       #
                                #
 	                       #         // Check if it is a valid character
+        la $fp, ($ra)          #         // HACK: abuse the frame pointer to store the original return address
                                #         $v0 = is_valid_character(
         move $a0, $s5          #              cur_char
         jal is_valid_character #         );
+        la $ra ($fp)           #         // (UN)HACK: return happiness to the return address
                                #
         move $s6, $v0          #         is_valid_ch = $v0
                                #
@@ -232,8 +234,10 @@ process_while:                 #
         j process_endifchar    #         }
 process_invalidchar:           #         else {
                                #
-        seq $t0, $s5, 10       #             // $t0 = (cur_char == '\n')
-        seq $t1, $s5, 0        #             // $t1 = (cur_char == '\0')
+        lb $t0, newline        #
+        seq $t0, $s5, $t0      #             // $t0 = (cur_char == '\n')
+        lb $t1, nullchar       #
+        seq $t1, $s5, $t1      #             // $t1 = (cur_char == '\0')
         or $t0, $t0, $t1       #             // $t0 = $t0 || $t1        // so now $t0 = cur_char == '\n' || cur_char == '\0'
         beqz $t0, process_endif_endofsent #  if (cur_char == '\n' || cur_char == '\0') {
                                #                 // Indicates an end of an input sentence
@@ -256,7 +260,7 @@ process_if_checkhyphenated:    #
         jal is_valid_character #                 $v0 = is_valid_character($a0)
         move $v1, $v0          #                 $v1 = $v0 // (next_char = $v1) HACK: we don't use $v1 anywhere in is_hyphen, so we're going to misuse $v1
                                #
-        lb $a0, ($s5)
+        move $a0, $s5
         jal is_hyphen
         
         and $t0, $v0, $v1
@@ -270,18 +274,23 @@ process_if_checkhyphenated:    #
                                #                     w[++char_index] = cur_char;
         addi $s7, $s7, 1       #                     // char_index += 1
         add $t0, $s4, $s7      #                     // address = w + char_index
-        sb $t0, ($s5)          #                     *address = cur_char
+        sb $s5, ($t0)          #                     *address = cur_char
                                #
         j process_while        #                     continue
                                #                 }
 process_endif_checkhyphenated:
-                               #
-        # // w has accumulated some valid characters. Thus, punctuation mark indicates an end of a word.
+        # // w has accumulated some valid characters. Thus, punctuation mark indicates an end of a word
+        addi $s7, $s7, 1       #                 char_index += 1;
+        add $t0, $s4, $s7      #                 // address = w + char_index
+        sb $zero, ($t0)        #                 w[char_index] = '\0'
+        
+        li $v0, 1              #                 $v0 = true
+        jr $ra                 #                 return $v0
                                #
 process_endif_charindex:       #             }
 
                                #             // skip the punctuation mark
-        lb $s4, nullchar       #             w[0] = '\0';
+        sb $zero, ($s4)        #             w[0] = '\0';
         li $s7, -1             #             char_index = -1;
 process_endifchar:             #         }
 	
