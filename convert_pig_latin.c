@@ -76,20 +76,67 @@ int is_hyphen(char ch) {
 }
 
 
+// returns true only if an input character is a vowel
+int is_vowel(char ch) {
+    char* vowels = "aeiouAEIOU";
+
+    int i = 0;
+    while (i < 10)
+    {
+        if (ch == vowels[i]) {
+            return true;
+        }
+
+        i += 1;
+    }
+    
+    return false;
+}
+
 void process_input(char* inp, char* out) {
-    int inp_index = 0;
-    char cur_char = inp[inp_index];
+    int inp_index = -1;
+    char cur_char = '\0';
+
+    int wordStart = -1;
 
     // While an end of sentence character has not been encountered
-    while ((cur_char != '\n') && (cur_char != '\0')) {
-        int cur_char_valid = is_valid_char(cur_char);
-
-        printf("Current character, %c, is %s. It is %s a vowel.\n", cur_char, cur_char_valid ? "valid": "invalid", "?");
-
-        // Prepare variables for the next loop
+    do {
+        // Prepare variables for this  loop
         inp_index += 1;
         cur_char = inp[inp_index];
-    }
+
+        int cur_char_valid = is_valid_char(cur_char);
+
+        if (wordStart < 0 && cur_char_valid) {
+            // printf("Begin word!\n");
+            wordStart = inp_index;
+        }
+
+        // If this is a hyphen, and next is a valid character, continue! (hyphenated word)
+        if (!cur_char_valid && is_hyphen(cur_char) && is_valid_char(inp[inp_index+1])) {
+            // do nothing
+        } else if (wordStart >= 0 && !cur_char_valid) {
+            // Print characters from wordStart to currentWord
+            int word_index = wordStart;
+            while (word_index < inp_index) {
+                print_char(inp[word_index]);
+                word_index += 1;
+            }
+            printf("\n");
+            // printf("End of word!\n");
+            wordStart = -1;
+        }
+
+        if (wordStart < 0) {
+            printf(
+                "Char: %c (%s, %s).\n",
+                cur_char,
+                cur_char_valid ? "valid": "invalid",
+                is_vowel(cur_char) ? "vowel" : "not a vowel"
+            );
+        }
+
+    } while ((cur_char != '\n') && (cur_char != '\0'));
 
     // Indicates the current index in "out"
 }
