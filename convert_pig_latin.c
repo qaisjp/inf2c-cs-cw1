@@ -113,7 +113,7 @@ void process_input(char* inp, char* out) {
         }
 
         // If this is a hyphen, and next is a valid character, continue! (hyphenated word)
-        if (!cur_char_valid && is_hyphen(cur_char) && is_valid_char(inp[inp_index+1])) {
+        if (is_hyphen(cur_char) && is_valid_char(inp[inp_index+1])) {
             // do nothing
         } else if (wordStart >= 0 && !cur_char_valid) {
             // Print characters from wordStart to currentWord
