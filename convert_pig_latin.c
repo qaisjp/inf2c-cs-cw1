@@ -55,6 +55,8 @@ void output(const char* out) {
 //
 //
 
+char word[MAX_WORD_LENGTH+1];
+
 
 // taken from find_word.c
 // returns true if an input character is a valid word character
@@ -93,11 +95,19 @@ int is_vowel(char ch) {
     return false;
 }
 
-void process_input(char* inp, char* out) {
-    int inp_index = -1;
-    char cur_char = '\0';
+// piglatinify
+int piglatinify(char* word, int length) {
+    word[length] = 'y';
+    word[length+1] = '\0';
 
-    int wordStart = -1;
+    return length + 1;
+}
+
+void process_input(char* inp, char* out) {
+    int inp_index = -1; // regular iterator through the input
+    char cur_char = '\0'; // current character
+    int out_index = 0; // current index for the output
+    int wordStart = -1; // the index in the input corresponding to the beginning of the word
 
     // While an end of sentence character has not been encountered
     do {
@@ -107,27 +117,54 @@ void process_input(char* inp, char* out) {
 
         int cur_char_valid = is_valid_char(cur_char);
 
+        // (wordStart < 0) means we aren't logging a word
+        // So if the current character is a valid word character
+        // mark the current index as the beginning of a word 
         if (wordStart < 0 && cur_char_valid) {
-            // printf("Begin word!\n");
             wordStart = inp_index;
         }
 
-        // If this is a hyphen, and next is a valid character, continue! (hyphenated word)
         if (is_hyphen(cur_char) && is_valid_char(inp[inp_index+1])) {
-            // do nothing
+            // If this is a hyphen, and next is a valid character, we don't want to do anything!
+            // We're here because we're bang smack in the middle of a hyphenated word.
         } else if (wordStart >= 0 && !cur_char_valid) {
-            // Print characters from wordStart to currentWord
+            // If we're currently marking a word (wordStart >= 0)
+            // and the current character is not valid, then we need to
+            // do things with the word that we have marked.
+
+            // First thing to do is build our word array, trailing with a null char for safety.
             int word_index = wordStart;
+            int length = 0;
             while (word_index < inp_index) {
-                print_char(inp[word_index]);
+                word[length] = inp[word_index];
+                word_index += 1;
+                length += 1;
+            }
+            word[length] = '\0';
+
+            // Do something to the word
+            int newLength = piglatinify(word, length);
+
+            // reuse word_index for the output word
+            word_index = 0;
+            while (word_index < newLength) {
+                out[out_index] = word[word_index];
+                out_index += 1;
                 word_index += 1;
             }
-            printf("\n");
-            // printf("End of word!\n");
+
+            // Print that word out.
+            printf("%s\n", word);
+
+            // We're at the end of the word, so we can peacefully reset the index marking
+            // the beginning of the current word. This is so that we can further detect new words.
             wordStart = -1;
         }
 
         if (wordStart < 0) {
+            out[out_index] = inp[inp_index];
+            out_index += 1;
+
             printf(
                 "Char: %c (%s, %s).\n",
                 cur_char,
