@@ -54,6 +54,28 @@ void output(const char* out) {
 // Write your own functions here
 //
 //
+
+
+// taken from find_word.c
+// returns true if an input character is a valid word character
+// returns false if an input character is any punctuation mark (including hyphen)
+int is_valid_char(char ch) {
+    return ( ch >= 'a' && ch <= 'z' ) {
+        return true;
+    } else if ( ch >= 'A' && ch <= 'Z' ) {
+        return true;
+    }
+
+    return false;
+}
+
+// take from find_word.c
+// returns true only if an input character is hyphen
+int is_hyphen(char ch) {
+    return ch == '-'
+}
+
+
 void process_input(char* inp, char* out) {
 
 }
