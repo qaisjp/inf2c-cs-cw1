@@ -105,7 +105,7 @@ int piglatinify(char* word, int length) {
     // word[0] = 'Q';
     // return length;
 
-    printf("Input word: %s\n", word);
+    // printf("Input word: %s\n", word);
 
     // We will reuse the register allocated for wordStart for this bit
     int firstCapped = is_upper_char(word[0]);
@@ -126,7 +126,7 @@ int piglatinify(char* word, int length) {
         }
     }
 
-    printf("Post-vowel: %s (vowel at index %d)\n",word + vowel_index, vowel_index);
+    // printf("Post-vowel: %s (vowel at index %d)\n",word + vowel_index, vowel_index);
 
     // Append all character upto and excluding the vowel to the end of the word
     while (word_index < vowel_index) {
@@ -157,10 +157,10 @@ int piglatinify(char* word, int length) {
     // Start at the vowel index
     word_index = vowel_index;
     while (word_index < length) {
-        printf(
-            "Move %c from %d to %d [w:%d, v:%d]\n", word[word_index], word_index, word_index-vowel_index
-            , word_index, vowel_index
-        );
+        // printf(
+        //     "Move %c from %d to %d [w:%d, v:%d]\n", word[word_index], word_index, word_index-vowel_index
+        //     , word_index, vowel_index
+        // );
 
         word[word_index-vowel_index] = word[word_index];
 
@@ -175,7 +175,7 @@ int piglatinify(char* word, int length) {
     }
 
     word[length] = '\0';
-    printf("%s\n\n", word);
+    // printf("%s\n\n", word);
     return length;
 }
 
