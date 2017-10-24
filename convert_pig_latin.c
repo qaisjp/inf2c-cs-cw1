@@ -169,17 +169,6 @@ int piglatinify(char* word, int length) {
 
     length -= vowel_index;
 
-    //
-    // word[length] = 'y';
-    // word[length+1] = '\0';
-    // word[0] = 'Q';
-    // printf(
-    //     "Char: %c (%s, %s).\n",
-    //     cur_char,
-    //     cur_char_valid ? "valid": "invalid",
-    //     is_vowel(cur_char) ? "vowel" : "not a vowel"
-    // );
-
     // If the first character was capped, but last not, make sure the first character is uppercase
     if (firstCapped && !lastCapped) {
         word[0] = word[0]-32;
