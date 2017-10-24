@@ -38,17 +38,17 @@ MAX_SENTENCE_LENGTH: .word 1000
         # // Maximum characters in a word excluding terminating null character
         # #define MAX_WORD_LENGTH 50
 MAX_WORD_LENGTH: .word 50
-	#
+        #
         # // Global variables
         # // +1 to store terminating null character
         #
         # char input_sentence[MAX_SENTENCE_LENGTH+1];
 input_sentence: .space 1001
-	#
-	# char word[MAX_WORD_LENGTH+1];
+        #
+        # char word[MAX_WORD_LENGTH+1];
 word:           .space 51
-	#
-	#
+        #
+        #
         #==================================================================
         # TEXT SEGMENT  
         #==================================================================
@@ -65,21 +65,21 @@ read_input:
                                #
         move $t1, $a0          #      auto $t1 = inp
                                #
-	li $v0, 4              #      print_string("\nEnter input: ");
-	la $a0, read_input_prompt
-	syscall                #
+        li $v0, 4              #      print_string("\nEnter input: ");
+        la $a0, read_input_prompt
+        syscall                #
                                #      // size is stored in $t2
                                #      int size = MAX_SENTENCE_LENGTH
-	lw $t2, MAX_SENTENCE_LENGTH
-	addi $t2, $t2, 1       #      size += 1;
+        lw $t2, MAX_SENTENCE_LENGTH
+        addi $t2, $t2, 1       #      size += 1;
                                #
-	li $v0, 8              #      read_string(
-	la $a0, ($t1)            #          inp,
-	la $a1, ($t2)            #          size
-	syscall                #      );
-	
-	jr $ra                 #      return
-	                       # }
+        li $v0, 8              #      read_string(
+        la $a0, ($t1)            #          inp,
+        la $a1, ($t2)            #          size
+        syscall                #      );
+        
+        jr $ra                 #      return
+                               # }
 
         #------------------------------------------------------------------
         # output function
@@ -89,27 +89,27 @@ read_input:
                                # out in $a0
 output:
                                # {
-	li $v0, 4              #      print_string(
-	#move $a0, $a0         #           out       // instruction commented because pointless
-	syscall                #      );
+        li $v0, 4              #      print_string(
+        #move $a0, $a0         #           out       // instruction commented because pointless
+        syscall                #      );
                                #
-	li $v0, 4              #      print_string(
-	la $a0, newline        #          "\n"
-	syscall                #      );
-	                       #
-	jr $ra                 #      return
-	                       # }
+        li $v0, 4              #      print_string(
+        la $a0, newline        #          "\n"
+        syscall                #      );
+                               #
+        jr $ra                 #      return
+                               # }
 
         #------------------------------------------------------------------
         # is_valid_character function
         #------------------------------------------------------------------
         # Make sure a given character is an alphabetic character (upper or lower).
-	# It checks: (ch >= 'a') && (ch <= 'z') && (ch >= 'A') && (ch <= 'Z')
-	# It would be easier to just use 4 register, or even do some maths
-	# but we need ot keep to the structure of the C code. Yay.
-	#
-	# returns true if an input character is a valid word character
-	# returns false if an input character is any punctuation mark (including hyphen)
+        # It checks: (ch >= 'a') && (ch <= 'z') && (ch >= 'A') && (ch <= 'Z')
+        # It would be easier to just use 4 register, or even do some maths
+        # but we need ot keep to the structure of the C code. Yay.
+        #
+        # returns true if an input character is a valid word character
+        # returns false if an input character is any punctuation mark (including hyphen)
 
                                # int is_valid_character(char ch)
                                # ch in $a0
@@ -117,34 +117,34 @@ is_valid_character:
                                # {
                                #            $t0          $t1
                                #    if ( ch >= 'a' && ch <= 'z' )
-	# note 'a' = 97	       #
-	# note 'z' = 122       #
-	sge $t0, $a0, 97       #      // $t0 = ch >= 'a'
-	sle $t1, $a0, 122      #      // $t1 = ch <= 'z'
-	and $v0, $t0, $t1      #      // $v0 = $t0 && $t1
-			       #      // so if $v0 is true, return true (return $v0)
-	beq $v0, 1, return_valid_character
-	                       #
+        # note 'a' = 97        #
+        # note 'z' = 122       #
+        sge $t0, $a0, 97       #      // $t0 = ch >= 'a'
+        sle $t1, $a0, 122      #      // $t1 = ch <= 'z'
+        and $v0, $t0, $t1      #      // $v0 = $t0 && $t1
+                               #      // so if $v0 is true, return true (return $v0)
+        beq $v0, 1, return_valid_character
+                               #
                                #      // it's false, so continue to the next case...
-	                       #
-	                       #
-	                       #                  $t0           $t1
-			       #    } else if ( ch >= 'A' && ch <= 'Z' ) {
-	# note 'a' = 65	       #
-	# note 'z' = 90        #
-	sge $t0, $a0, 65       #      // $t0 = ch >= 'A'
-	sle $t1, $a0, 90       #      // $t1 = ch <= 'Z'
-	and $v0, $t0, $t1      #      // $v0 = $t0 && $t1
-			       #      // so if $v0 is true, return true (return $v0)
-	beq $v0, 1, return_valid_character
-	                       #
-	                       #      // it's false, so continue to the next case...
-	                       #
-	                       #    } else {
-	                       #
-	                       #    // return false     
-	li $v0, 0 	       #    $v0 = 0   // (false)
-	j return_valid_character
+                               #
+                               #
+                               #                  $t0           $t1
+                               #    } else if ( ch >= 'A' && ch <= 'Z' ) {
+        # note 'a' = 65        #
+        # note 'z' = 90        #
+        sge $t0, $a0, 65       #      // $t0 = ch >= 'A'
+        sle $t1, $a0, 90       #      // $t1 = ch <= 'Z'
+        and $v0, $t0, $t1      #      // $v0 = $t0 && $t1
+                               #      // so if $v0 is true, return true (return $v0)
+        beq $v0, 1, return_valid_character
+                               #
+                               #      // it's false, so continue to the next case...
+                               #
+                               #    } else {
+                               #
+                               #    // return false     
+        li $v0, 0              #    $v0 = 0   // (false)
+        j return_valid_character
                                #    the jump is actually unnecessary, but it'll be useful in case
                                #    we make some changes later on
                                #
@@ -163,10 +163,10 @@ return_valid_character:        #
                                # ch in $a0
 is_hyphen:
                                # {
-	seq $v0, $a0, 45       #     $v0 = (ch == 45)
-	jr $ra                 #     return $v0
-	                       # }
-	                       
+        seq $v0, $a0, 45       #     $v0 = (ch == 45)
+        jr $ra                 #     return $v0
+                               # }
+                               
         #------------------------------------------------------------------
         # process_input function
         #------------------------------------------------------------------
@@ -188,20 +188,20 @@ process_input:
         move $s3, $a0
         move $s4, $a1
         
-	# char cur_char = $s5
-	lb $s5, nullchar       #     char cur_char = '\0'; // $s5
-	
-	# bool is_valid_ch = $s6
-	move $s6, $0           #     int is_valid_ch = false; // $s6
-	                       #
-	# Indicates how many elements in "w" contains valid word characters
-	# int char_index = $s7
-	li $s7, -1             #     int char_index = -1; // $s7
-	                       #
-	                       #
+        # char cur_char = $s5
+        lb $s5, nullchar       #     char cur_char = '\0'; // $s5
+        
+        # bool is_valid_ch = $s6
+        move $s6, $0           #     int is_valid_ch = false; // $s6
+                               #
+        # Indicates how many elements in "w" contains valid word characters
+        # int char_index = $s7
+        li $s7, -1             #     int char_index = -1; // $s7
+                               #
+                               #
         # This loop runs until end of an input sentence is encountered or a valid word is extracted
 process_while:                 #
-	bnez $s1, process_end  #     while ( end_of_sentence == false ) {
+        bnez $s1, process_end  #     while ( end_of_sentence == false ) {
                                #         // This means we continue if:
                                #         // - end_of_sentence == false == 0
                                #         // - continue if `eqz`
@@ -212,11 +212,11 @@ process_while:                 #
         add $t0, $s3, $s0      #         // address = inp + input_index;
         # then get the character at the address
         lb $s5, ($t0)          #         // cur_char = *address;
-	                       #
-	addi $s0, $s0, 1       #         input_index++;
-	                       #
                                #
-	                       #         // Check if it is a valid character
+        addi $s0, $s0, 1       #         input_index++;
+                               #
+                               #
+                               #         // Check if it is a valid character
         la $fp, ($ra)          #         // HACK: abuse the frame pointer to store the original return address
                                #         $v0 = is_valid_character(
         move $a0, $s5          #              cur_char
@@ -293,15 +293,15 @@ process_endif_charindex:       #             }
         sb $zero, ($s4)        #             w[0] = '\0';
         li $s7, -1             #             char_index = -1;
 process_endifchar:             #         }
-	
-	# jump back to the beginning of the while loop
-	j process_while
+        
+        # jump back to the beginning of the while loop
+        j process_while
                                
             
 process_end:
-	li $v0, 0              #     $v0 = false;
-	jr $ra                 #     return $v0
-	                       # }
+        li $v0, 0              #     $v0 = false;
+        jr $ra                 #     return $v0
+                               # }
 
         #------------------------------------------------------------------
         # MAIN code block
@@ -330,16 +330,16 @@ main:
 
                                # int is_main() {
                                #
-	li $s2, 0              #     int word_found = false; // $s2
+        li $s2, 0              #     int word_found = false; // $s2
                                #
                                #     $v0 = read_input(
-	la $a0, input_sentence #         input_sentence,
-	jal read_input         #     );
-	                       #
-	li $v0, 4              #     print_string(
-	la $a0, outputmsg      #         "\noutput:\n"
-	syscall                #     );
-	                       #
+        la $a0, input_sentence #         input_sentence,
+        jal read_input         #     );
+                               #
+        li $v0, 4              #     print_string(
+        la $a0, outputmsg      #         "\noutput:\n"
+        syscall                #     );
+                               #
 main_loop:                     #     do {
                                #         $v0 = process_input(
         la $a0, input_sentence #             input_sentence,
@@ -356,13 +356,13 @@ main_loop:                     #     do {
                                #
 main_wordnotfound:             #         }
                                #
-	                       #     } while ( word_found == true );
-	bnez $s2, main_loop    #     //
-	                       #     // We want to jump to the
-	                       #     // beginning of the loop only when:
-	                       #     // word_found == true     i.e when:
-	                       #     // word_found == 1        i.e when:
-	                       #     // word_found != 0
+                               #     } while ( word_found == true );
+        bnez $s2, main_loop    #     //
+                               #     // We want to jump to the
+                               #     // beginning of the loop only when:
+                               #     // word_found == true     i.e when:
+                               #     // word_found == 1        i.e when:
+                               #     // word_found != 0
 main_end:                      #
         li   $v0, 10           #     return 0;
         syscall                # }
