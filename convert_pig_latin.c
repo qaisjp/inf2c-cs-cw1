@@ -55,8 +55,8 @@ void output(const char* out) {
 //
 //
 
-char word[MAX_WORD_LENGTH+1];
-
+char word[(MAX_WORD_LENGTH*3)+1];
+char preword[(MAX_WORD_LENGTH*3)+1];
 
 // taken from find_word.c
 // returns true if an input character is a valid word character
@@ -69,6 +69,10 @@ int is_valid_char(char ch) {
     }
 
     return false;
+}
+
+int is_upper_char(char ch) {
+    return ( ch >= 'A' && ch <= 'Z' );
 }
 
 // take from find_word.c
@@ -95,11 +99,75 @@ int is_vowel(char ch) {
     return false;
 }
 
-// piglatinify
+// piglatinify takes a word with a trailing null character, and a length
 int piglatinify(char* word, int length) {
+    // Uncomment these two lines to check if the process_input code works correctly
+    // word[0] = 'Q';
+    // return length;
+
+    printf("Input word: %s\n", word);
+
+    // We will reuse the register allocated for wordStart for this bit
+    int firstCapped = is_upper_char(word[0]);
+    int lastCapped = is_upper_char(word[length-1]);
+    int word_index = 0;
+    int vowel_index = -1;
+
+    // First find the vowel index (or end of word)
+    while (vowel_index < length) {
+        vowel_index += 1;
+        if (is_vowel(word[vowel_index])) {
+            break;
+        }
+    }
+
+    printf("Post-vowel: %s (vowel at index %d)\n",word + vowel_index, vowel_index);
+
+    // Append all character upto and excluding the vowel to the end of the word
+    while (word_index < vowel_index) {
+        // printf("Place character (%c, %d) at (%d)\n", word[word_index], word[word_index], length);
+        word[length] = word[word_index];
+
+        word_index += 1; // our progress through the word to the vowel
+        length += 1; // the 
+    }
+
+    if (firstCapped && lastCapped) {
+        word[length] = 'A';
+        word[length+1] = 'Y';
+    } else {
+        word[length] = 'a';
+        word[length+1] = 'y';        
+    }
+    length += 2;
+
+
+    // Temporary code: clear everything before the vowel
+    word_index = vowel_index;
+    while (word_index > 0) {
+        word_index -= 1;
+        word[word_index] = '_';
+    }
+
+    // Start at the vowel index
+    word_index = vowel_index;
+    while (word_index < length) {
+        printf(
+            "Move %c from %d to %d [w:%d, v:%d]\n", word[word_index], word_index, word_index-vowel_index
+            , word_index, vowel_index
+        );
+
+        word[word_index-vowel_index] = word[word_index];
+
+        word_index += 1;
+    }
+
+    length -= vowel_index;
+
+    //
     // word[length] = 'y';
     // word[length+1] = '\0';
-    word[0] = 'Q';
+    // word[0] = 'Q';
     // printf(
     //     "Char: %c (%s, %s).\n",
     //     cur_char,
@@ -107,6 +175,8 @@ int piglatinify(char* word, int length) {
     //     is_vowel(cur_char) ? "vowel" : "not a vowel"
     // );
 
+    word[length] = '\0';
+    printf("%s\n\n", word);
     return length;
 }
 
@@ -157,8 +227,8 @@ void process_input(char* inp, char* out) {
                 length += 1;
             }
 
-            // Trail the word with a null char for safety.
-            word[wordStart] = '\0';
+            // Trail the word with a null char for safety. Length of the string does not change.
+            word[length] = '\0';
 
             // Do something to the word
             int newLength = piglatinify(word, length);
