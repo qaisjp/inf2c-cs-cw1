@@ -113,6 +113,11 @@ int piglatinify(char* word, int length) {
     int word_index = 0;
     int vowel_index = -1;
 
+    // If the first character is capped, but last not, make first character lowercase before moving it around
+    if (firstCapped && !lastCapped) {
+        word[0] = word[0]+32;
+    }
+
     // First find the vowel index (or end of word)
     while (vowel_index < length) {
         vowel_index += 1;
@@ -174,6 +179,11 @@ int piglatinify(char* word, int length) {
     //     cur_char_valid ? "valid": "invalid",
     //     is_vowel(cur_char) ? "vowel" : "not a vowel"
     // );
+
+    // If the first character was capped, but last not, make sure the first character is uppercase
+    if (firstCapped && !lastCapped) {
+        word[0] = word[0]-32;
+    }
 
     word[length] = '\0';
     printf("%s\n\n", word);
