@@ -97,10 +97,17 @@ int is_vowel(char ch) {
 
 // piglatinify
 int piglatinify(char* word, int length) {
-    word[length] = 'y';
-    word[length+1] = '\0';
+    // word[length] = 'y';
+    // word[length+1] = '\0';
+    word[0] = 'Q';
+    // printf(
+    //     "Char: %c (%s, %s).\n",
+    //     cur_char,
+    //     cur_char_valid ? "valid": "invalid",
+    //     is_vowel(cur_char) ? "vowel" : "not a vowel"
+    // );
 
-    return length + 1;
+    return length;
 }
 
 void process_input(char* inp, char* out) {
@@ -132,29 +139,44 @@ void process_input(char* inp, char* out) {
             // and the current character is not valid, then we need to
             // do things with the word that we have marked.
 
-            // First thing to do is build our word array, trailing with a null char for safety.
-            int word_index = wordStart;
+            // REMEMBER: wordStart will be reset after this branch, so we can freely use that variable.
+
+            // First thing to do is build our word array.
+            //
+            // Usually we reserve wordStart to just storing the inp_index of the currently
+            // tracked word. Since we'll be resetting wordStart at the end of this branch,
+            // and since we'll only be referring to `inp` here in this branch, we can reuse
+            // wordStart throughout this branch.
+            //
+            // So from now on, within this branch, wordStart is pretty much just a free inp_index.
+            //
             int length = 0;
-            while (word_index < inp_index) {
-                word[length] = inp[word_index];
-                word_index += 1;
+            while (wordStart < inp_index) {
+                word[length] = inp[wordStart];
+                wordStart += 1;
                 length += 1;
             }
-            word[length] = '\0';
+
+            // Trail the word with a null char for safety.
+            word[wordStart] = '\0';
 
             // Do something to the word
             int newLength = piglatinify(word, length);
 
-            // reuse word_index for the output word
-            word_index = 0;
-            while (word_index < newLength) {
-                out[out_index] = word[word_index];
+            // We need to append `word` onto `out`.
+            // Reuse wordStart to refer to the progress through `word` so far.
+            wordStart = 0;
+            while (wordStart < newLength) {
+                // Add the character to the output.
+                out[out_index] = word[wordStart];
+
+                // Increment the progress through `word`, and index of `out`.
                 out_index += 1;
-                word_index += 1;
+                wordStart += 1;
             }
 
             // Print that word out.
-            printf("%s\n", word);
+            // printf("%s\n", word);
 
             // We're at the end of the word, so we can peacefully reset the index marking
             // the beginning of the current word. This is so that we can further detect new words.
@@ -165,12 +187,11 @@ void process_input(char* inp, char* out) {
             out[out_index] = inp[inp_index];
             out_index += 1;
 
-            printf(
-                "Char: %c (%s, %s).\n",
-                cur_char,
-                cur_char_valid ? "valid": "invalid",
-                is_vowel(cur_char) ? "vowel" : "not a vowel"
-            );
+            // printf(
+            //     "Char: %c (%s).\n",
+            //     cur_char,
+            //     cur_char_valid ? "valid": "invalid"
+            // );
         }
 
     } while ((cur_char != '\n') && (cur_char != '\0'));
