@@ -219,6 +219,7 @@ process_word_endwhile:         #
         add $t2, $t2, $s5      #                     word_address += length;
         sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
         
+        # Push all our stored variables onto the stack
         addi $sp, $sp, -24
         sw $s0, 0($sp)
         sw $s1, 4($sp)
@@ -226,7 +227,10 @@ process_word_endwhile:         #
         sw $s3, 12($sp)
         sw $s4, 16($sp)
         sw $s5, 20($sp)
+        
         #################################### do somethnig to our word
+        
+        # Pop all our stored variables off the stack
         lw $s5, 20($sp)
         lw $s4, 16($sp)
         lw $s3, 12($sp)
