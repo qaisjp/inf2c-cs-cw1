@@ -56,7 +56,6 @@ void output(const char* out) {
 //
 
 char word[(MAX_WORD_LENGTH*3)+1];
-char preword[(MAX_WORD_LENGTH*3)+1];
 
 // taken from find_word.c
 // returns true if an input character is a valid word character
@@ -180,10 +179,10 @@ int piglatinify(char* word, int length) {
 }
 
 void process_input(char* inp, char* out) {
-    int inp_index = -1; // regular iterator through the input
-    char cur_char = '\0'; // current character
-    int out_index = 0; // current index for the output
-    int wordStart = -1; // the index in the input corresponding to the beginning of the word
+    int inp_index = -1; // $s0 regular iterator through the input
+    char cur_char = '\0'; // $s1 current character
+    int out_index = 0; // $s2 current index for the output
+    int wordStart = -1; // $s3 the index in the input corresponding to the beginning of the word
 
     // While an end of sentence character has not been encountered
     do {
