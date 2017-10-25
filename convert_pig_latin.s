@@ -219,11 +219,21 @@ process_word_endwhile:         #
         add $t2, $t2, $s5      #                     word_address += length;
         sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
         
+        addi $sp, $sp, -24
+        sw $s0, 0($sp)
+        sw $s1, 4($sp)
+        sw $s2, 8($sp)
+        sw $s3, 12($sp)
+        sw $s4, 16($sp)
+        sw $s5, 20($sp)
         #################################### do somethnig to our word
-        addi $sp, $sp, -4
-        sw $t1, 0($sp)
-        lw $t1, 0($sp)
-        addi $sp, $sp, 4
+        lw $s5, 20($sp)
+        lw $s4, 16($sp)
+        lw $s3, 12($sp)
+        lw $s2, 8($sp)
+        lw $s1, 4($sp)
+        lw $s0, 0($sp)
+        addi $sp, $sp, 24
         
         # // We need to append `word` to `out`.
 	# // Reuse wordStart to refer to the progress through `word` so far.
