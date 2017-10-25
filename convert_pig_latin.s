@@ -214,7 +214,7 @@ piglatin_lowerfirst_if:        #     if (firstCapped && !lastCapped) {
         addi $t0, $t0, 32      #         $t0 += 32; // lowercase the firstChar
         sb $t0, 0($s0)         #         word[0] = word[0] + 32;
                                #
-piglatin_lowerfirst_endif:      #     }
+piglatin_lowerfirst_endif:     #     }
                                #
                                #
         # // First find the vowel index (or end of word)
@@ -292,16 +292,16 @@ piglatin_shiftback_endwhile:   #     }
         
         sub $s1, $s1, $s5      #     length = length - vowel_index;
                                #
-                                #
+                               #
         # // If the first character was capped, but last not, make sure the first character is uppercase
         not $t0, $s3           #     $t0 = !lastCapped;
         and $t0, $t0, $s2      #     $t0 = !lastCapped && firstCapped;
-        beqz $t0, piglatin_skiptolower_last # if (firstCapped && !lastCapped) {
-                               #      
+piglatin_lowerlast_if:         #     if (firstCapped && !lastCapped) {
+        beqz $t0, piglatin_lowerlast_endif
         lb $t0, 0($s0)         #         $t0 = word[0]; // firstChar
-        subi $t0, $t0, 32      #         $t0 += 32; // upper the firstChar
-        sb $t0, 0($s0)         #         word[0] = word[0] - 32;        
-piglatin_skiptolower_last:     #     }
+        sub $t0, $t0, 32       #         $t0 -= 32; // uppercase the firstChar
+        sb $t0, 0($s0)         #         word[0] = word[0] - 32;
+piglatin_lowerlast_endif:      #     }
                                #
         add $t0, $s0, $s1      #     address = word + length;
         sb $zero, ($t0)        #     *address = '\0'; // word[length] = '\0'
