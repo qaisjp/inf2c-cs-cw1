@@ -115,17 +115,32 @@ is_valid_character:
                                # {
         # note 'a' = 97        #
         # note 'z' = 122       #
-        sge $t0, $a0, 97       #      $t0 = ch >= 'a';
-        sle $t1, $a0, 122      #      $t1 = ch <= 'z';
-        and $t2, $t0, $t1      #      $t2 = $t0 && $t1;
+        sge $t0, $a0, 97       #     $t0 = ch >= 'a';
+        sle $t1, $a0, 122      #     $t1 = ch <= 'z';
+        and $t2, $t0, $t1      #     $t2 = $t0 && $t1;
                                #
         # note 'a' = 65        #
         # note 'z' = 90        #
-        sge $t0, $a0, 65       #      $t0 = ch >= 'A';
-        sle $t1, $a0, 90       #      $t1 = ch <= 'Z';
-        and $t0, $t0, $t1      #      $t0 = $t0 && $t1;
+        sge $t0, $a0, 65       #     $t0 = ch >= 'A';
+        sle $t1, $a0, 90       #     $t1 = ch <= 'Z';
+        and $t0, $t0, $t1      #     $t0 = $t0 && $t1;
                                #
-	or $v0, $t2, $t0       #      $v0 = $t0 || $t2;
+	or $v0, $t2, $t0       #     $v0 = $t0 || $t2;
+                               #
+        jr $ra                 #     return $v0;
+                               # }
+                               
+        #------------------------------------------------------------------
+        # is_upper_char
+        #------------------------------------------------------------------
+
+                               # int is_upper_char(char ch)
+                               # ch in $a0
+is_upper_char:
+                               # {
+        sge $t0, $a0, 65       #     $t0 = $a0 >= 'A';
+        sle $t1, $a0, 90       #     $t1 = ch <= 'Z';
+        and $v0, $t0, $t1      #     $v0 = $t0 && $t1;
                                #
         jr $ra                 #     return $v0;
                                # }
@@ -137,25 +152,41 @@ is_valid_character:
                                # word in $a0, length in $a1
 piglatinify:
                                # {
+	# HACK: This is abuse. Move $ra into $fp.
+        move $fp, $ra
         
-        # First character Q                       
-	li $t0, 'Q'
-	sb $t0, ($a0)
-	
-	# Offset length
-	add $a0, $a0, $a1
-	
-	# Last two ay
-        li $t0, 'a'
-	sb $t0, 0($a0)
-	li $t0, 'y'
-	sb $t0, 1($a0)
-	
-	# Finish with a nullchar
-        sb $zero, 2($a0)
+        # Store our args into s0 and s1
+        move $s0, $a0          #     $s0 = word
+        move $s1, $a1          #     $s1 = length
+                               #
+	# firstCapped          #
+        lb $a0, ($s0)          #     $v0 = is_upper_char(word[0]
+        jal is_upper_char      #     );
+        move $s2, $v0          #     int firstCapped = $v0;
         
-        ## Increase length by two chars
-        addi $v0, $a1, 2
+        # lastCapped           #
+        add $t0, $s0, $s1      #     word_address = word + length
+        subi $t0, $t0, 1       #     word_address -= 1
+        lb $t0, ($t0)          #     $t0 = *word_address
+        move $a0, $t0          #     $v0 = is_upper_char(word[length-1]
+        jal is_upper_char      #     );
+        move $s3, $v0          #     int lastCapped = $v0;
+        
+        ##### PRINTCODE
+        move $a0, $v0
+        li $v0, 1
+        syscall        
+        li $v0, 11
+        li $a0, '\n'
+        syscall
+        ####### PRINTCODE END
+        
+	# (UN)HACK: This is abuse. Move the return address in $fp back into $ra.
+	move $ra, $fp
+	
+	# Make sure we set the return value to our accumulated length
+	move $v0, $a1          #     $v0 = length;
+        
         jr $ra                 #     return $v0;
                                # }
 
