@@ -132,7 +132,7 @@ int piglatinify(char* word, int length) {
         word[length] = word[word_index];
 
         word_index += 1; // our progress through the word to the vowel
-        length += 1; // the 
+        length += 1; // the entire word length increases
     }
 
     if (firstCapped && lastCapped) {
