@@ -131,6 +131,35 @@ is_valid_character:
                                # }
 
         #------------------------------------------------------------------
+        # piglatinify function
+        #------------------------------------------------------------------
+                               # int piglatinify(char* word, int length)
+                               # word in $a0, length in $a1
+piglatinify:
+                               # {
+        
+        # First character Q                       
+	li $t0, 'Q'
+	sb $t0, ($a0)
+	
+	# Offset length
+	add $a0, $a0, $a1
+	
+	# Last two ay
+        li $t0, 'a'
+	sb $t0, 0($a0)
+	li $t0, 'y'
+	sb $t0, 1($a0)
+	
+	# Finish with a nullchar
+        sb $zero, 2($a0)
+        
+        ## Increase length by two chars
+        addi $v0, $a1, 2
+        jr $ra                 #     return $v0;
+                               # }
+
+        #------------------------------------------------------------------
         # process_input function
         #------------------------------------------------------------------
                                # void process_input(char* inp, char* out)
@@ -199,7 +228,7 @@ process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and i
 process_word_while:
         bge $s3, $s0, process_word_endwhile #    while (wordStart < inp_index) {
         
-        lw $t1, 4($sp)        #                     inp_address = stack[1]; // stack[1] = inp
+        lw $t1, 4($sp)         #                     inp_address = stack[1]; // stack[1] = inp
         add $t1, $t1, $s3      #                     inp_address += wordStart;
         lb $t1, ($t1)          #                     $t1 = *inp_address // $t1 = inp[wordStart]
                                #
@@ -214,9 +243,9 @@ process_word_while:
 process_word_endwhile:         #
                                #
         # // Trail the word with a null char for safety. Length of the string does not change.
-        la $t2, word           #                     word_address = word
-        add $t2, $t2, $t0      #                     word_address += length;
-        sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
+        la $t2, word           #                 word_address = word
+        add $t2, $t2, $t0      #                 word_address += length;
+        sb $zero, ($t2)        #                 *word_address = 0; // word[length] = '\0';
         
         # Push all our stored variables onto the stack
         addi $sp, $sp, -20
@@ -226,7 +255,11 @@ process_word_endwhile:         #
         sw $s3, 12($sp)
         sw $s4, 16($sp)
         
-        #################################### do somethnig to our word
+	# // Do something to the word
+        la $a0, word           #                 $v0 = piglatinify(word,
+        move $a1, $t0          #                     length
+        jal piglatinify        #                 );
+        move $t0, $v0          #                 length = newLength = $v0
         
         # Pop all our stored variables off the stack
         lw $s4, 16($sp)
@@ -248,7 +281,7 @@ process_appendword_while:
         add $t1, $t1, $s3      #                     word_address += wordStart;
         lb $t1, ($t1)          #                     $t1 = *word_address // $t1 = word[wordStart]
                                #
-        lw $t2, 8($sp)        #                     out_address = stack[2] // stack[2] = out
+        lw $t2, 8($sp)        #                      out_address = stack[2] // stack[2] = out
         add $t2, $t2, $s2      #                     out_address += out_index;
         sb $t1, ($t2)          #                     *out_address = $t1; // out[out_index] = word[wordStart];
         
