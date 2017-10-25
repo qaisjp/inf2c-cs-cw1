@@ -194,6 +194,40 @@ process_beginword_not: # We jump here if we shouldn't start marking a word
 	
 process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and if we encounter a bad character (!cur_char_valid)
         
+        # // Now we need to start building the word array with our found word
+        li $t0, 0              #                 int length = 0; // in $t0
+process_word_while:
+        bge $s3, $s0, process_word_endwhile #    while (wordStart < inp_index) {
+        
+        lw $t1, -4($sp)        #                     inp_address = stack[1]; // stack[1] = inp
+        add $t1, $t1, $s3      #                     inp_address += wordStart;
+        lb $t1, ($t1)          #                     $t1 = *inp_address // $t1 = inp[wordStart]
+                               #
+        la $t2, word           #                     word_address = word
+        add $t2, $t2, $t0      #                     word_address += length;
+        sb $t1, ($t2)          #                     *word_address = $t1; // word[length] = inp[wordStart];
+                               #
+        addi $s3, $s3, 1       #                     wordStart += 1;
+        addi $t0, $t0, 1       #                     length += 1;
+                               #
+        j process_word_while   #                 }
+process_word_endwhile:         #
+                               #
+        # // Trail the word with a null char for safety. Length of the string does not change.
+        la $t2, word           #                     word_address = word
+        add $t2, $t2, $t0      #                     word_address += length;
+        sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
+        
+        #### OUR OWN CODE
+        li $v0, 4
+        la $a0, word
+        syscall
+        li $v0, 11
+        li $a0, '\n'
+        syscall
+        ####
+        
+        # There is some code run at the end of this chunk of instructions
         ###########################################################
         # UNCOMMENT THIS MOUND OF CODE TO SEE THE WORD BOUNDARIES #
         ###########################################################
