@@ -227,43 +227,6 @@ process_word_endwhile:         #
         syscall
         ####
         
-        # There is some code run at the end of this chunk of instructions
-        ###########################################################
-        # UNCOMMENT THIS MOUND OF CODE TO SEE THE WORD BOUNDARIES #
-        ###########################################################
-        ## Print opening (
-        #li $v0, 11
-        #li $a0, '('
-        #syscall
-        #
-        ## Print beginning of word index
-        #li $v0, 1
-        #move $a0, $s3
-        #syscall
-        #
-        ## Print a comma
-        #li $v0, 11
-        #li $a0, ','
-        #syscall
-        #
-        ## Print end of word index
-        #li $v0, 1
-        #move $a0, $s0
-        #syscall
-        #
-        ## Print closing )
-        #li $v0, 11
-        #li $a0, ')'
-        #syscall
-        #
-        ## Print space
-        #li $v0, 11
-        #li $a0, ' '
-        #syscall
-        ############################################################
-        # THIS IS THE END OF THE WORD BOUNDARY PRINTING CODE #######
-        ############################################################
-        
         li $s3, -1             #                 wordStart = -1;
                                #             }
                                #         }
