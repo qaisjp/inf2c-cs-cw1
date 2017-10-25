@@ -161,14 +161,16 @@ is_vowel_while:                #     while (i < 10) {
         bge $t1, 10, is_vowel_endwhile
                                #
         add $t2, $t0, $t1      #         vowel_address = vowels + i
-        lb $t2, ($t2)          #         vowel = vowel_address
-        beq $t2, $a0, is_vowel_endwhile # if vowel == ch: jump to return
+        lb $t2, ($t2)          #         vowel = *vowel_address
+        beq $t2, $a0, is_vowel_return #  if vowel == ch: jump to return
 
         addi $t1, $t1, 1       #         i += 1;
+        j is_vowel_while       #
                                #     }
                                #
-        li $v0, 0              #     $v0 = false;
 is_vowel_endwhile:
+        li $v0, 0              #     $v0 = false;
+is_vowel_return:
         jr $ra                 #     return $v0;
                                # }
 
@@ -230,6 +232,11 @@ piglatin_findvowel_while:      #     while (vowel_index < length) {
         
         j piglatin_findvowel_while
 piglatin_findvowel_endwhile:
+
+	####### ours
+	move $a0, $s5
+	li $v0, 1
+	syscall
 
 
 
