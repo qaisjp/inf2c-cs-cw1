@@ -235,7 +235,18 @@ process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and i
                                #         }
 process_endif_badchar:         #         // Mark end of badchar stream
 
-process_loop_thinkwhile:
+process_if_printbadchar: bgez $s3, process_endif_printbadchar # // skip over if wordStart >= 0
+                               #         if (wordStart < 0) {
+        lw $t0, -8($sp)        #             out_addr = stack[2]; // stack[2] = out;
+        add $t0, $t0, $s2      #             out_addr += out_index
+                               #
+        sb $s1, ($t0)          #             *out_addr = cur_char // out[out_index] = cur_char;
+        addi $s2, $s2, 1       #             out_index += 1;
+                               #
+                               #         }
+process_endif_printbadchar:    #
+                               #         // Now we're at the end of the do loop
+process_loop_thinkwhile:       #
         # Code to jump back to the beginning of this loop
         lb $t0, nullchar       #         // load nullchar
         lb $t1, newline        #         // load newline
