@@ -139,8 +139,8 @@ is_valid_character:
 process_input:
         addi $sp, $sp, -12
         sw $ra 0($sp)           # offset 0 is $ra
-        sw $a0 -4($sp)          # offset 4 is $a0
-        sw $a1 -8($sp)          # offset 8 is $a1
+        sw $a0 4($sp)          # offset 4 is $a0
+        sw $a1 8($sp)          # offset 8 is $a1
         
                                # {
         li $s0, -1             #     int inp_index = -1; // regular iterator through the input, $s0
@@ -154,7 +154,7 @@ process_loop_do:               #     do {
                                #
 	addi $s0, $s0, 1       #         inp_index += 1;
 
-        lw $t0, -4($sp)        #         address = stack[1]; // stack[1] = inp;
+        lw $t0, 4($sp)        #         address = stack[1]; // stack[1] = inp;
 	add $t0, $t0, $s0      #         address += inp_index;
 	lb $s1, ($t0)          #         cur_char = *address;
 
@@ -174,7 +174,7 @@ process_loop_do:               #     do {
 process_beginword_not: # We jump here if we shouldn't start marking a word
 
 
-        lw $t0, -4($sp)        #         address = stack[1]; // stack[1] = inp;
+        lw $t0, 4($sp)        #         address = stack[1]; // stack[1] = inp;
 	add $t0, $t0, $s0      #         address += inp_index;
 	addi $t0, $t0, 1       #         address += 1;
 	lb $a0, ($t0)          #         next_char = *address; // in $a0
@@ -199,7 +199,7 @@ process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and i
 process_word_while:
         bge $s3, $s0, process_word_endwhile #    while (wordStart < inp_index) {
         
-        lw $t1, -4($sp)        #                     inp_address = stack[1]; // stack[1] = inp
+        lw $t1, 4($sp)        #                     inp_address = stack[1]; // stack[1] = inp
         add $t1, $t1, $s3      #                     inp_address += wordStart;
         lb $t1, ($t1)          #                     $t1 = *inp_address // $t1 = inp[wordStart]
                                #
@@ -219,6 +219,10 @@ process_word_endwhile:         #
         sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
         
         #################################### do somethnig to our word
+        addi $sp, $sp, -4
+        sw $t1, 0($sp)
+        lw $t1, 0($sp)
+        addi $sp, $sp, 4
         
         # // We need to append `word` to `out`.
 	# // Reuse wordStart to refer to the progress through `word` so far.
@@ -232,7 +236,7 @@ process_appendword_while:
         add $t1, $t1, $s3      #                     word_address += wordStart;
         lb $t1, ($t1)          #                     $t1 = *word_address // $t1 = word[wordStart]
                                #
-        lw $t2, -8($sp)        #                     out_address = stack[2] // stack[2] = out
+        lw $t2, 8($sp)        #                     out_address = stack[2] // stack[2] = out
         add $t2, $t2, $s2      #                     out_address += out_index;
         sb $t1, ($t2)          #                     *out_address = $t1; // out[out_index] = word[wordStart];
         
@@ -250,7 +254,7 @@ process_endif_badchar:         #         // Mark end of badchar stream
 
 process_if_printbadchar: bgez $s3, process_endif_printbadchar # // skip over if wordStart >= 0
                                #         if (wordStart < 0) {
-        lw $t0, -8($sp)        #             out_addr = stack[2]; // stack[2] = out;
+        lw $t0, 8($sp)        #             out_addr = stack[2]; // stack[2] = out;
         add $t0, $t0, $s2      #             out_addr += out_index
                                #
         sb $s1, ($t0)          #             *out_addr = cur_char // out[out_index] = cur_char;
