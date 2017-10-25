@@ -146,11 +146,11 @@ int piglatinify(char* word, int length) {
 
 
     // Temporary code: clear everything before the vowel
-    word_index = vowel_index;
-    while (word_index > 0) {
-        word_index -= 1;
-        word[word_index] = '_';
-    }
+    // word_index = vowel_index;
+    // while (word_index > 0) {
+    //     word_index -= 1;
+    //     word[word_index] = '_';
+    // }
 
     // Start at the vowel index
     word_index = vowel_index;
