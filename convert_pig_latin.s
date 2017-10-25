@@ -143,10 +143,10 @@ process_input:
         sw $a0 -8($sp)          # offset 8 is $a1
         
                                # {
-        li $s0, -1             #     int inp_index = -1; // regular iterator through the input
-        lb, $s1, nullchar      #     char cur_char = '\0'; // curr char
-        li $s0, 0              #     int out_index = 0;
-        li $s0, -1             #     int wordStart = -1;
+        li $s0, -1             #     int inp_index = -1; // regular iterator through the input, $s0
+        lb, $s1, nullchar      #     char cur_char = '\0'; // curr char, $s1
+        li $s2, 0              #     int out_index = 0; // $s2 current index for the ouptut
+        li $s3, -1             #     int wordStart = -1; // $s3 the index in the input corresponding to the beginning fo the word
                                #
         # While an end of sentence character has not been encountered
 process_loop_do:               #     do {
