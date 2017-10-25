@@ -219,24 +219,22 @@ process_word_endwhile:         #
         sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
         
         # Push all our stored variables onto the stack
-        addi $sp, $sp, -24
+        addi $sp, $sp, -20
         sw $s0, 0($sp)
         sw $s1, 4($sp)
         sw $s2, 8($sp)
         sw $s3, 12($sp)
         sw $s4, 16($sp)
-        sw $s5, 20($sp)
         
         #################################### do somethnig to our word
         
         # Pop all our stored variables off the stack
-        lw $s5, 20($sp)
         lw $s4, 16($sp)
         lw $s3, 12($sp)
         lw $s2, 8($sp)
         lw $s1, 4($sp)
         lw $s0, 0($sp)
-        addi $sp, $sp, 24
+        addi $sp, $sp, 20
         
         # // We need to append `word` to `out`.
 	# // Reuse wordStart to refer to the progress through `word` so far.
