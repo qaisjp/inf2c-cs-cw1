@@ -148,6 +148,7 @@ process_input:
         li $s2, 0              #     int out_index = 0; // $s2 current index for the ouptut
         li $s3, -1             #     int wordStart = -1; // $s3 the index in the input corresponding to the beginning fo the word
         li $s4, 0              #     int cur_char_valid = false; // $s4
+                               #     // $s5 is used later
                                #
         # While an end of sentence character has not been encountered
 process_loop_do:               #     do {
@@ -195,7 +196,7 @@ process_beginword_not: # We jump here if we shouldn't start marking a word
 process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and if we encounter a bad character (!cur_char_valid)
         
         # // Now we need to start building the word array with our found word
-        li $t0, 0              #                 int length = 0; // in $t0
+        li $s5, 0              #                 int length = 0; // in $s5
 process_word_while:
         bge $s3, $s0, process_word_endwhile #    while (wordStart < inp_index) {
         
@@ -204,18 +205,18 @@ process_word_while:
         lb $t1, ($t1)          #                     $t1 = *inp_address // $t1 = inp[wordStart]
                                #
         la $t2, word           #                     word_address = word
-        add $t2, $t2, $t0      #                     word_address += length;
+        add $t2, $t2, $s5      #                     word_address += length;
         sb $t1, ($t2)          #                     *word_address = $t1; // word[length] = inp[wordStart];
                                #
         addi $s3, $s3, 1       #                     wordStart += 1;
-        addi $t0, $t0, 1       #                     length += 1;
+        addi $s5, $s5, 1       #                     length += 1;
                                #
         j process_word_while   #                 }
 process_word_endwhile:         #
                                #
         # // Trail the word with a null char for safety. Length of the string does not change.
         la $t2, word           #                     word_address = word
-        add $t2, $t2, $t0      #                     word_address += length;
+        add $t2, $t2, $s5      #                     word_address += length;
         sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
         
         #################################### do somethnig to our word
@@ -228,7 +229,7 @@ process_word_endwhile:         #
 	# // Reuse wordStart to refer to the progress through `word` so far.
 	li $s3, 0              #                 wordStart = 0;
 process_appendword_while:
-        bge $s3, $t0, process_appendword_endwhile # while (wordStart < newLength)
+        bge $s3, $s5, process_appendword_endwhile # while (wordStart < newLength)
                                #                 {
                                #
         # // Add the character to the output
