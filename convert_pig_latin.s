@@ -63,21 +63,21 @@ read_input:
                                #
         move $t1, $a0          #      auto $t1 = inp
                                #
-	li $v0, 4              #      print_string("\nEnter input: ");
-	la $a0, inputmsg
-	syscall                #
+        li $v0, 4              #      print_string("\nEnter input: ");
+        la $a0, inputmsg
+        syscall                #
                                #      // size is stored in $t2
                                #      int size = MAX_SENTENCE_LENGTH
-	lw $t2, MAX_SENTENCE_LENGTH
-	addi $t2, $t2, 1       #      size += 1;
+        lw $t2, MAX_SENTENCE_LENGTH
+        addi $t2, $t2, 1       #      size += 1;
                                #
-	li $v0, 8              #      read_string(
-	la $a0, ($t1)          #          inp,
-	la $a1, ($t2)          #          size
-	syscall                #      );
-	
-	jr $ra                 #      return
-	                       # }
+        li $v0, 8              #      read_string(
+        la $a0, ($t1)          #          inp,
+        la $a1, ($t2)          #          size
+        syscall                #      );
+        
+        jr $ra                 #      return
+                               # }
 
         #------------------------------------------------------------------
         # output function (copied from find_word.s)
@@ -125,7 +125,7 @@ is_valid_character:
         sle $t1, $a0, 90       #     $t1 = ch <= 'Z';
         and $t0, $t0, $t1      #     $t0 = $t0 && $t1;
                                #
-	or $v0, $t2, $t0       #     $v0 = $t0 || $t2;
+        or $v0, $t2, $t0       #     $v0 = $t0 || $t2;
                                #
         jr $ra                 #     return $v0;
                                # }
@@ -158,14 +158,14 @@ is_vowel:
         li $v0, 1              #     $v0 = true; // assume true;
         
 is_vowel_while:                #     while (i < 10) {
-	bge $t1, 10, is_vowel_endwhile
-	                       #
-	                       
-	                       
+        bge $t1, 10, is_vowel_endwhile
+                               #
+                               
+                               
         addi $t1, $t1, 1       #         i += 1;
                                #     }
 is_vowel_endwhile:
-	li $v0, 0              #     $v0 = false;
+        li $v0, 0              #     $v0 = false;
         jr $ra                 #     return $v0;
                                # }
 
@@ -176,14 +176,14 @@ is_vowel_endwhile:
                                # word in $a0, length in $a1
 piglatinify:
                                # {
-	# HACK: This is abuse. Move $ra into $fp.
+        # HACK: This is abuse. Move $ra into $fp.
         move $fp, $ra
         
         # Store our args into s0 and s1
         move $s0, $a0          #     $s0 = word
         move $s1, $a1          #     $s1 = length
                                #
-	# firstCapped          #
+        # firstCapped          #
         lb $a0, ($s0)          #     $v0 = is_upper_char(word[0]
         jal is_upper_char      #     );
         move $s2, $v0          #     int firstCapped = $v0;
@@ -213,19 +213,19 @@ piglatin_skiptolower_first:    #     }
                                #
 piglatin_findvowel_while:      #     while (vowel_index < length) {
         # // First find the vowel index (or end of word)
-	bge $s5, $s1, piglatin_findvowel_endwhile
-	                       #
-	# increment vowel_index#
-	addi $s5, $s5, 1       #         vowel_index += 1;
-	
-	# break loop if is vowel
+        bge $s5, $s1, piglatin_findvowel_endwhile
+                               #
+        # increment vowel_index#
+        addi $s5, $s5, 1       #         vowel_index += 1;
+        
+        # break loop if is vowel
         add $t0, $s0, $s5      #         word_address = word + vowel_index
         lb $t0, ($t0)          #         $t0 = *word_address
-	move $a0, $t0          #         $a0 = $t0; // = word[vowel_index]);
-	jal is_vowel           #         $v0 = is_vowel(word[vowel_index]);
-	beq $v0, 1, piglatin_findvowel_endwhile # if is_vowel(word[vowel_index]) break
-	
-	j piglatin_findvowel_while
+        move $a0, $t0          #         $a0 = $t0; // = word[vowel_index]);
+        jal is_vowel           #         $v0 = is_vowel(word[vowel_index]);
+        beq $v0, 1, piglatin_findvowel_endwhile # if is_vowel(word[vowel_index]) break
+        
+        j piglatin_findvowel_while
 piglatin_findvowel_endwhile:
 
 
@@ -240,14 +240,14 @@ piglatin_findvowel_endwhile:
         sb $t0, 0($s0)         #         word[0] = word[0] - 32;        
 piglatin_skiptolower_last:     #     }
                                #
-	add $t0, $s0, $s1     #     address = word + length;
-	sb $zero, ($t0)        #     *address = '\0'; // word[length] = '\0'
+        add $t0, $s0, $s1     #     address = word + length;
+        sb $zero, ($t0)        #     *address = '\0'; // word[length] = '\0'
         
-	# (UN)HACK: This is abuse. Move the return address in $fp back into $ra.
-	move $ra, $fp
-	
-	# Make sure we set the return value to our accumulated length
-	move $v0, $a1          #     $v0 = length;
+        # (UN)HACK: This is abuse. Move the return address in $fp back into $ra.
+        move $ra, $fp
+        
+        # Make sure we set the return value to our accumulated length
+        move $v0, $a1          #     $v0 = length;
         
         jr $ra                 #     return $v0;
                                # }
@@ -274,20 +274,20 @@ process_input:
         # While an end of sentence character has not been encountered
 process_loop_do:               #     do {
                                #
-	addi $s0, $s0, 1       #         inp_index += 1;
+        addi $s0, $s0, 1       #         inp_index += 1;
 
         lw $t0, 4($sp)        #         address = stack[1]; // stack[1] = inp;
-	add $t0, $t0, $s0      #         address += inp_index;
-	lb $s1, ($t0)          #         cur_char = *address;
+        add $t0, $t0, $s0      #         address += inp_index;
+        lb $s1, ($t0)          #         cur_char = *address;
 
-	move $a0, $s1          #         $v0 = is_valid_char(cur_char
-	jal is_valid_character #         );
-	move $s4, $v0          #         cur_char_valid = $v0
+        move $a0, $s1          #         $v0 = is_valid_char(cur_char
+        jal is_valid_character #         );
+        move $s4, $v0          #         cur_char_valid = $v0
 
         # // (wordStart < 0) means we aren't logging a word
-	# // So if the current character is a valid word character
-	# // mark the current index as the beginning of a word
-	slt $t0, $s3, $0       #         $t0 = wordStart < 0
+        # // So if the current character is a valid word character
+        # // mark the current index as the beginning of a word
+        slt $t0, $s3, $0       #         $t0 = wordStart < 0
         and $t0, $t0, $s4      #         $t0 = (wordStart < 0) && cur_char_valid
         beqz $t0, process_beginword_not# if (wordStart < 0 && cur_char_valid) {
 
@@ -297,11 +297,11 @@ process_beginword_not: # We jump here if we shouldn't start marking a word
 
 
         lw $t0, 4($sp)        #         address = stack[1]; // stack[1] = inp;
-	add $t0, $t0, $s0      #         address += inp_index;
-	addi $t0, $t0, 1       #         address += 1;
-	lb $a0, ($t0)          #         next_char = *address; // in $a0
+        add $t0, $t0, $s0      #         address += inp_index;
+        addi $t0, $t0, 1       #         address += 1;
+        lb $a0, ($t0)          #         next_char = *address; // in $a0
 
-	jal is_valid_character #         $v0 = is_valid_character(next_char);
+        jal is_valid_character #         $v0 = is_valid_character(next_char);
         seq $t0, $s1, '-'      #         $t0 = (cur_char == ''); // is_hyphen(curr_char) inlined
         and $t0, $t0, $v0      #         $t0 = $t0 && $v0 = is_hyphen(cur_char) && is_valid_character(next_char);
         
@@ -309,11 +309,11 @@ process_beginword_not: # We jump here if we shouldn't start marking a word
                                #             // jump over this entire if branch.
                                #         } else {
                                #
-	sge $t0, $s3, 0        #             $t0 = wordStart >= 0;
-	not $t1, $s4           #             $t1 = !cur_char_valid;
-	and $t0, $t0, $t1      #             $t0 = (wordStart >= 0) && !cur_char_valid;
-	bne $t0, 1, process_endif_badchar #  if ((wordStart >= 0) && !cur_char_valid) {
-	
+        sge $t0, $s3, 0        #             $t0 = wordStart >= 0;
+        not $t1, $s4           #             $t1 = !cur_char_valid;
+        and $t0, $t0, $t1      #             $t0 = (wordStart >= 0) && !cur_char_valid;
+        bne $t0, 1, process_endif_badchar #  if ((wordStart >= 0) && !cur_char_valid) {
+        
 process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and if we encounter a bad character (!cur_char_valid)
         
         # // Now we need to start building the word array with our found word
@@ -348,7 +348,7 @@ process_word_endwhile:         #
         sw $s3, 12($sp)
         sw $s4, 16($sp)
         
-	# // Do something to the word
+        # // Do something to the word
         la $a0, word           #                 $v0 = piglatinify(word,
         move $a1, $t0          #                     length
         jal piglatinify        #                 );
@@ -363,8 +363,8 @@ process_word_endwhile:         #
         addi $sp, $sp, 20
         
         # // We need to append `word` to `out`.
-	# // Reuse wordStart to refer to the progress through `word` so far.
-	li $s3, 0              #                 wordStart = 0;
+        # // Reuse wordStart to refer to the progress through `word` so far.
+        li $s3, 0              #                 wordStart = 0;
 process_appendword_while:
         bge $s3, $t0, process_appendword_endwhile # while (wordStart < newLength)
                                #                 {
