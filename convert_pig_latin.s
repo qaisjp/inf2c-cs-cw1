@@ -233,66 +233,66 @@ piglatin_findvowel_while:      #     while (vowel_index < length) {
         
         j piglatin_findvowel_while
 piglatin_findvowel_endwhile:   #     }
-			       #
-			       #
-	# // Append all character upto and excluding the vowel to the end of the word
+                               #
+                               #
+        # // Append all character upto and excluding the vowel to the end of the word
 piglatin_append_while:         #     while (word_index < vowel_index) {
-	bge $s4, $s5, piglatin_append_endwhile
-	                       #
+        bge $s4, $s5, piglatin_append_endwhile
+                               #
         add $t0, $s0, $s4      #         wordbyte_address += word + word_index;
         lb $t0, ($t0)          #         $t0 = *wordbyte_address // $t0 = word[word_index]
                                #
         add $t1, $s0, $s1      #         word_address = word + length;
         sb $t0, ($t1)          #         *word_address = $t1; // word[length] = word[word_index];
-        		       #
-	addi $s4, $s4, 1       #         word_index += 1; // our progress through the word to the vowel
-	addi $s1, $s1, 1       #         length += 1; // the entire word length increases
-			       #
-	j piglatin_append_while#
+                               #
+        addi $s4, $s4, 1       #         word_index += 1; // our progress through the word to the vowel
+        addi $s1, $s1, 1       #         length += 1; // the entire word length increases
+                               #
+        j piglatin_append_while#
 piglatin_append_endwhile:      #     }
-			       #
-			       #
-	# Prepare for the following IF statement, simple AY append
-	and $t0, $s2, $s3      #     $t0 = firstCapped && lastCapped
-	add $t1, $s0, $s1      #     word_address = word + length
-	beqz $t0, piglatin_shouldfullcaps_else
+                               #
+                               #
+        # Prepare for the following IF statement, simple AY append
+        and $t0, $s2, $s3      #     $t0 = firstCapped && lastCapped
+        add $t1, $s0, $s1      #     word_address = word + length
+        beqz $t0, piglatin_shouldfullcaps_else
 piglatin_shouldfullcaps_if:    #     if (firstCapped && lastCapped) {
-	li $t0, 'A'            #
-	sb $t0, 0($t1)         #         word[length] = 'A';
-			       #
-	li $t0, 'Y'            #
-	sb $t0, 1($t1)         #         word[length+1] = 'Y';
-	
-	j piglatin_shouldfullcaps_endif
+        li $t0, 'A'            #
+        sb $t0, 0($t1)         #         word[length] = 'A';
+                               #
+        li $t0, 'Y'            #
+        sb $t0, 1($t1)         #         word[length+1] = 'Y';
+        
+        j piglatin_shouldfullcaps_endif
 piglatin_shouldfullcaps_else:  #     } else {
-	li $t0, 'a'            #
-	sb $t0, 0($t1)         #         word[length] = 'a';
-			       #
-	li $t0, 'y'            #
-	sb $t0, 1($t1)         #         word[length+1] = 'y';
+        li $t0, 'a'            #
+        sb $t0, 0($t1)         #         word[length] = 'a';
+                               #
+        li $t0, 'y'            #
+        sb $t0, 1($t1)         #         word[length+1] = 'y';
 piglatin_shouldfullcaps_endif: #     }
-			       #
+                               #
         addi $s1, $s1, 2       #     length += 2;
 piglatin_shiftback_while:      #     while (word_index < length) {
-	bge $s4, $s1, piglatin_shiftback_endwhile
-			       #
-	add $t0, $s0, $s4      #         wordbyte_address += word + word_index;
+        bge $s4, $s1, piglatin_shiftback_endwhile
+                               #
+        add $t0, $s0, $s4      #         wordbyte_address += word + word_index;
         add $t1, $t0, $s5      #         word_address = (word + word_index) - vowel_index;
         
         lb $t0, ($t0)          #         $t0 = *wordbyte_address // $t0 = word[word_index]
         sb $t0, ($t1)          #         *word_address = $t1; // word[word_index - vowel_index] = word[word_index];
-        		       #
-	addi $s4, $s4, 1       #         word_index += 1; // our progress through the word to the vowel
-			       #
-	j piglatin_shiftback_while
+                               #
+        addi $s4, $s4, 1       #         word_index += 1; // our progress through the word to the vowel
+                               #
+        j piglatin_shiftback_while
 piglatin_shiftback_endwhile:   #     }
-        		       #
-        		       #
-	move $s4, $s5          #     word_index = vowel_index;
+                               #
+                               #
+        move $s4, $s5          #     word_index = vowel_index;
         
         sub $s1, $s1, $s5      #     length = length - vowel_index;
-			       #
- 			       #
+                               #
+                                #
         # // If the first character was capped, but last not, make sure the first character is uppercase
         not $t0, $s3           #     $t0 = !lastCapped;
         and $t0, $t0, $s2      #     $t0 = !lastCapped && firstCapped;
