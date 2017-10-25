@@ -183,6 +183,7 @@ void process_input(char* inp, char* out) {
     char cur_char = '\0'; // $s1 current character
     int out_index = 0; // $s2 current index for the output
     int wordStart = -1; // $s3 the index in the input corresponding to the beginning of the word
+    int cur_char_valid = false; // $s4
 
     // While an end of sentence character has not been encountered
     do {
@@ -190,7 +191,7 @@ void process_input(char* inp, char* out) {
         inp_index += 1;
         cur_char = inp[inp_index];
 
-        int cur_char_valid = is_valid_char(cur_char);
+        cur_char_valid = is_valid_char(cur_char);
 
         // (wordStart < 0) means we aren't logging a word
         // So if the current character is a valid word character
