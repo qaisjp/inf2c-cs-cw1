@@ -146,6 +146,30 @@ is_upper_char:
                                # }
 
         #------------------------------------------------------------------
+        # is_vowel, returns true only if an input char is a vowel
+        #------------------------------------------------------------------
+
+                               # int is_vowel(char ch)
+                               # ch in $a0
+is_vowel:
+                               # {
+        la $t0, vowels         #     char* vowels = "aeiouAEIOU";
+        li $t1, 0              #     int i = 10;
+        li $v0, 1              #     $v0 = true; // assume true;
+        
+is_vowel_while:                #     while (i < 10) {
+	bge $t1, 10, is_vowel_endwhile
+	                       #
+	                       
+	                       
+        addi $t1, $t1, 1       #         i += 1;
+                               #     }
+is_vowel_endwhile:
+	li $v0, 0              #     $v0 = false;
+        jr $ra                 #     return $v0;
+                               # }
+
+        #------------------------------------------------------------------
         # piglatinify function
         #------------------------------------------------------------------
                                # int piglatinify(char* word, int length)
@@ -172,14 +196,52 @@ piglatinify:
         jal is_upper_char      #     );
         move $s3, $v0          #     int lastCapped = $v0;
         
-        ##### PRINTCODE
-        move $a0, $v0
-        li $v0, 1
-        syscall        
-        li $v0, 11
-        li $a0, '\n'
-        syscall
-        ####### PRINTCODE END
+        # word_index and vowel_index
+        li $s4, 0              #     int word_index = 0;
+        li $s5, -1             #     int vowel_index = -1;
+        
+        # // If the first character is capped, but last not, make first character lowercase before moving it around
+        not $t0, $s3           #     $t0 = !lastCapped;
+        and $t0, $t0, $s2      #     $t0 = !lastCapped && firstCapped;
+        beqz $t0, piglatin_skiptolower_first # if (firstCapped && !lastCapped) {
+        lb $t0, 0($s0)         #         $t0 = word[0]; // firstChar
+        addi $t0, $t0, 32      #         $t0 += 32; // lowercase the firstChar
+        sb $t0, 0($s0)         #         word[0] = word[0] + 32;
+                               #
+piglatin_skiptolower_first:    #     }
+                               #
+                               #
+piglatin_findvowel_while:      #     while (vowel_index < length) {
+        # // First find the vowel index (or end of word)
+	bge $s5, $s1, piglatin_findvowel_endwhile
+	                       #
+	# increment vowel_index#
+	addi $s5, $s5, 1       #         vowel_index += 1;
+	
+	# break loop if is vowel
+        add $t0, $s0, $s5      #         word_address = word + vowel_index
+        lb $t0, ($t0)          #         $t0 = *word_address
+	move $a0, $t0          #         $a0 = $t0; // = word[vowel_index]);
+	jal is_vowel           #         $v0 = is_vowel(word[vowel_index]);
+	beq $v0, 1, piglatin_findvowel_endwhile # if is_vowel(word[vowel_index]) break
+	
+	j piglatin_findvowel_while
+piglatin_findvowel_endwhile:
+
+
+
+        # // If the first character was capped, but last not, make sure the first character is uppercase
+        not $t0, $s3           #     $t0 = !lastCapped;
+        and $t0, $t0, $s2      #     $t0 = !lastCapped && firstCapped;
+        beqz $t0, piglatin_skiptolower_last # if (firstCapped && !lastCapped) {
+                               #      
+        lb $t0, 0($s0)         #         $t0 = word[0]; // firstChar
+        subi $t0, $t0, 32      #         $t0 += 32; // upper the firstChar
+        sb $t0, 0($s0)         #         word[0] = word[0] - 32;        
+piglatin_skiptolower_last:     #     }
+                               #
+	add $t0, $s0, $s1     #     address = word + length;
+	sb $zero, ($t0)        #     *address = '\0'; // word[length] = '\0'
         
 	# (UN)HACK: This is abuse. Move the return address in $fp back into $ra.
 	move $ra, $fp
