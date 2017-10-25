@@ -154,18 +154,21 @@ is_upper_char:
 is_vowel:
                                # {
         la $t0, vowels         #     char* vowels = "aeiouAEIOU";
-        li $t1, 0              #     int i = 10;
+        li $t1, 0              #     int i = 0;
         li $v0, 1              #     $v0 = true; // assume true;
         
 is_vowel_while:                #     while (i < 10) {
         bge $t1, 10, is_vowel_endwhile
                                #
-                               
-                               
+        add $t2, $t0, $t1      #         vowel_address = vowels + i
+        lb $t2, ($t2)          #         vowel = vowel_address
+        beq $t2, $a0, is_vowel_endwhile # if vowel == ch: jump to return
+
         addi $t1, $t1, 1       #         i += 1;
                                #     }
-is_vowel_endwhile:
+                               #
         li $v0, 0              #     $v0 = false;
+is_vowel_endwhile:
         jr $ra                 #     return $v0;
                                # }
 
