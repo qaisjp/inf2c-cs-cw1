@@ -310,7 +310,7 @@ piglatin_skiptolower_last:     #     }
         move $ra, $fp
         
         # Make sure we set the return value to our accumulated length
-        move $v0, $a1          #     $v0 = length;
+        move $v0, $s1          #     $v0 = length;
         
         jr $ra                 #     return $v0;
                                # }
