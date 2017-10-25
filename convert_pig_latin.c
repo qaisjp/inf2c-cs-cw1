@@ -106,7 +106,6 @@ int piglatinify(char* word, int length) {
 
     // printf("Input word: %s\n", word);
 
-    // We will reuse the register allocated for wordStart for this bit
     int firstCapped = is_upper_char(word[0]);
     int lastCapped = is_upper_char(word[length-1]);
     int word_index = 0;
