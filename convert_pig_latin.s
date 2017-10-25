@@ -154,7 +154,7 @@ process_loop_do:               #     do {
                                #
 	addi $s0, $s0, 1       #         inp_index += 1;
 
-        lw $t0, -4($sp)        #         address = stack[0]; // stack[0] = $a0 = inp;
+        lw $t0, -4($sp)        #         address = stack[0]; // stack[1] = $a0 = inp;
 	add $t0, $t0, $s0      #         address += inp_index;
 	lb $s1, ($t0)          #         cur_char = *address;
 
@@ -173,6 +173,69 @@ process_loop_do:               #     do {
                                #         }
 process_beginword_not: # We jump here if we shouldn't start marking a word
 
+
+        lw $t0, -4($sp)        #         address = stack[0]; // stack[1] = $a0 = inp;
+	add $t0, $t0, $s0      #         address += inp_index;
+	addi $t0, $t0, 1       #         address += 1;
+	lb $a0, ($t0)          #         next_char = *address; // in $a0
+
+	jal is_valid_character #         $v0 = is_valid_character(next_char);
+        seq $t0, $s1, '-'      #         $t0 = (cur_char == ''); // is_hyphen(curr_char) inlined
+        and $t0, $t0, $v0      #         $t0 = $t0 && $v0 = is_hyphen(cur_char) && is_valid_character(next_char);
+        
+        bnez $t0, process_endif_badchar# if (is_hyphen(cur_char) && is_valid_char(inp[inp_index+1])) {
+                               #             // jump over this entire if branch.
+                               #         } else {
+                               #
+	sge $t0, $s3, 0        #             $t0 = wordStart >= 0;
+	not $t1, $s4           #             $t1 = !cur_char_valid;
+	and $t0, $t0, $t1      #             $t0 = (wordStart >= 0) && !cur_char_valid;
+	bne $t0, 1, process_endif_badchar #  if ((wordStart >= 0) && !cur_char_valid) {
+	
+process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and if we encounter a bad character (!cur_char_valid)
+        
+        ###########################################################
+        # UNCOMMENT THIS MOUND OF CODE TO SEE THE WORD BOUNDARIES #
+        ###########################################################
+        ## Print opening (
+        #li $v0, 11
+        #li $a0, '('
+        #syscall
+        #
+        ## Print beginning of word index
+        #li $v0, 1
+        #move $a0, $s3
+        #syscall
+        #
+        ## Print a comma
+        #li $v0, 11
+        #li $a0, ','
+        #syscall
+        #
+        ## Print end of word index
+        #li $v0, 1
+        #move $a0, $s0
+        #syscall
+        #
+        ## Print closing )
+        #li $v0, 11
+        #li $a0, ')'
+        #syscall
+        #
+        ## Print space
+        #li $v0, 11
+        #li $a0, ' '
+        #syscall
+        ############################################################
+        # THIS IS THE END OF THE WORD BOUNDARY PRINTING CODE #######
+        ############################################################
+        
+        li $s3, -1             #                 wordStart = -1;
+                               #             }
+                               #         }
+process_endif_badchar:         #         // Mark end of badchar stream
+
+process_loop_thinkwhile:
         # Code to jump back to the beginning of this loop
         lb $t0, nullchar       #         // load nullchar
         lb $t1, newline        #         // load newline

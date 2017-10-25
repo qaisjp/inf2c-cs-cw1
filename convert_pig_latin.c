@@ -202,7 +202,16 @@ void process_input(char* inp, char* out) {
 
         if (is_hyphen(cur_char) && is_valid_char(inp[inp_index+1])) {
             // If this is a hyphen, and next is a valid character, we don't want to do anything!
-            // We're here because we're bang smack in the middle of a hyphenated word.
+            // We're here because we could be smack in the middle of a hyphenated word.
+
+            // Q: Could be in the middle? What is this uncertainty?
+            //
+            // A: It turns out this always runs, even if the previous character is a punctuation mark.
+            //    But that's okay. We don't do anything here. The next branch won't run anyway, since
+            //    it only happens if we're in a word. Which we're not. All is ok.
+            //
+            // print_int(inp_index);
+            // print_char('\n');
         } else if (wordStart >= 0 && !cur_char_valid) {
             // If we're currently marking a word (wordStart >= 0)
             // and the current character is not valid, then we need to
