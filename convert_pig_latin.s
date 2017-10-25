@@ -140,7 +140,7 @@ process_input:
         addi $sp, $sp, -12
         sw $ra 0($sp)           # offset 0 is $ra
         sw $a0 -4($sp)          # offset 4 is $a0
-        sw $a0 -8($sp)          # offset 8 is $a1
+        sw $a1 -8($sp)          # offset 8 is $a1
         
                                # {
         li $s0, -1             #     int inp_index = -1; // regular iterator through the input, $s0
