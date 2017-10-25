@@ -218,14 +218,30 @@ process_word_endwhile:         #
         add $t2, $t2, $t0      #                     word_address += length;
         sb $zero, ($t2)        #                     *word_address = 0; // word[length] = '\0';
         
-        #### OUR OWN CODE
-        li $v0, 4
-        la $a0, word
-        syscall
-        li $v0, 11
-        li $a0, '\n'
-        syscall
-        ####
+        #################################### do somethnig to our word
+        
+        # // We need to append `word` to `out`.
+	# // Reuse wordStart to refer to the progress through `word` so far.
+	li $s3, 0              #                 wordStart = 0;
+process_appendword_while:
+        bge $s3, $t0, process_appendword_endwhile # while (wordStart < newLength)
+                               #                 {
+                               #
+        # // Add the character to the output
+        la $t1, word           #                     word_address = word
+        add $t1, $t1, $s3      #                     word_address += wordStart;
+        lb $t1, ($t1)          #                     $t1 = *word_address // $t1 = word[wordStart]
+                               #
+        lw $t2, -8($sp)        #                     out_address = stack[2] // stack[2] = out
+        add $t2, $t2, $s2      #                     out_address += out_index;
+        sb $t1, ($t2)          #                     *out_address = $t1; // out[out_index] = word[wordStart];
+        
+        # // Increment the progress through `word`, and index of `out`.
+        addi $s2, $s2, 1       #                     out_index += 1;
+        addi $s3, $s3, 1       #                     wordStart += 1;
+        
+        j process_appendword_while #             }
+process_appendword_endwhile:   #
         
         li $s3, -1             #                 wordStart = -1;
                                #             }
