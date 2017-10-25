@@ -154,7 +154,7 @@ process_loop_do:               #     do {
                                #
 	addi $s0, $s0, 1       #         inp_index += 1;
 
-        lw $t0, -4($sp)        #         address = stack[0]; // stack[1] = $a0 = inp;
+        lw $t0, -4($sp)        #         address = stack[1]; // stack[1] = inp;
 	add $t0, $t0, $s0      #         address += inp_index;
 	lb $s1, ($t0)          #         cur_char = *address;
 
@@ -174,7 +174,7 @@ process_loop_do:               #     do {
 process_beginword_not: # We jump here if we shouldn't start marking a word
 
 
-        lw $t0, -4($sp)        #         address = stack[0]; // stack[1] = $a0 = inp;
+        lw $t0, -4($sp)        #         address = stack[1]; // stack[1] = inp;
 	add $t0, $t0, $s0      #         address += inp_index;
 	addi $t0, $t0, 1       #         address += 1;
 	lb $a0, ($t0)          #         next_char = *address; // in $a0
