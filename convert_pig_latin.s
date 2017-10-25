@@ -273,11 +273,13 @@ piglatin_shouldfullcaps_else:  #     } else {
 piglatin_shouldfullcaps_endif: #     }
                                #
         addi $s1, $s1, 2       #     length += 2;
+                               #
+        move $s4, $s5          #     word_index = vowel_index;
 piglatin_shiftback_while:      #     while (word_index < length) {
         bge $s4, $s1, piglatin_shiftback_endwhile
                                #
         add $t0, $s0, $s4      #         wordbyte_address += word + word_index;
-        add $t1, $t0, $s5      #         word_address = (word + word_index) - vowel_index;
+        sub $t1, $t0, $s5      #         word_address = (word + word_index) - vowel_index;
         
         lb $t0, ($t0)          #         $t0 = *wordbyte_address // $t0 = word[word_index]
         sb $t0, ($t1)          #         *word_address = $t1; // word[word_index - vowel_index] = word[word_index];
@@ -288,8 +290,6 @@ piglatin_shiftback_while:      #     while (word_index < length) {
 piglatin_shiftback_endwhile:   #     }
                                #
                                #
-        move $s4, $s5          #     word_index = vowel_index;
-        
         sub $s1, $s1, $s5      #     length = length - vowel_index;
                                #
                                #
