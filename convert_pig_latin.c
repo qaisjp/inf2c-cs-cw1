@@ -262,7 +262,7 @@ void process_input(char* inp, char* out) {
         }
 
         if (wordStart < 0) {
-            out[out_index] = inp[inp_index];
+            out[out_index] = cur_char;
             out_index += 1;
 
             // printf(
