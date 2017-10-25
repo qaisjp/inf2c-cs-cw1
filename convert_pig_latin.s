@@ -147,6 +147,7 @@ process_input:
         lb, $s1, nullchar      #     char cur_char = '\0'; // curr char, $s1
         li $s2, 0              #     int out_index = 0; // $s2 current index for the ouptut
         li $s3, -1             #     int wordStart = -1; // $s3 the index in the input corresponding to the beginning fo the word
+        li $s4, 0              #     int cur_char_valid = false; // $s4
                                #
         # While an end of sentence character has not been encountered
 process_loop_do:               #     do {
@@ -156,11 +157,21 @@ process_loop_do:               #     do {
         lw $t0, -4($sp)        #         address = stack[0]; // stack[0] = $a0 = inp;
 	add $t0, $t0, $s0      #         address += inp_index;
 	lb $s1, ($t0)          #         cur_char = *address;
-        
-        # Print out the current character
-	li $v0, 11
-	move $a0, $s1
-	syscall
+
+	move $a0, $s1          #         $v0 = is_valid_char(cur_char
+	jal is_valid_character #         );
+	move $s4, $v0          #         cur_char_valid = $v0
+
+        # // (wordStart < 0) means we aren't logging a word
+	# // So if the current character is a valid word character
+	# // mark the current index as the beginning of a word
+	slt $t0, $s3, $0       #         $t0 = wordStart < 0
+        and $t0, $t0, $s4      #         $t0 = (wordStart < 0) && cur_char_valid
+        beqz $t0, process_beginword_not# if (wordStart < 0 && cur_char_valid) {
+
+        move $s3, $s0          #             wordStart = inp_index;
+                               #         }
+process_beginword_not: # We jump here if we shouldn't start marking a word
 
         # Code to jump back to the beginning of this loop
         lb $t0, nullchar       #         // load nullchar
@@ -170,6 +181,7 @@ process_loop_do:               #     do {
         and $t0, $t0, $t1      #         // $t0 = (curr_char != '\0') && (curr_char != '\n');
         bnez $t0, process_loop_do #      while ((cur_char != '\n') && (cur_char != '\0'))
         
+process_loop_enddo:
         # Done with the while loop? Revive return address from the stack, and jump back.
         lw $ra, 0($sp)         #     // Correct $ra is offset 0.
         addi $sp, $sp, 12      #     // Pop our things from the stack.
