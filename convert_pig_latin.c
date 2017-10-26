@@ -1,9 +1,9 @@
 // ==========================================================================
 // PigLatin Converter
 // ==========================================================================
-// Convert all words in a sentence using PigLatin rules 
+// Convert all words in a sentence using PigLatin rules
 
-// Inf2C-CS Coursework 1. Task B 
+// Inf2C-CS Coursework 1. Task B
 // PROVIDED file, to be used to complete the task in C and as a model for writing MIPS code.
 
 // Instructor: Boris Grot
@@ -17,7 +17,7 @@
 
 void read_string(char* s, int size) { fgets(s, size, stdin); }
 
-void print_char(char c)    { printf("%c", c); }   
+void print_char(char c)    { printf("%c", c); }
 void print_int(int num)    { printf("%d", num); }
 void print_string(const char* s) { printf("%s", s); }
 
@@ -94,7 +94,7 @@ int is_vowel(char ch) {
 
         i += 1;
     }
-    
+
     return false;
 }
 
@@ -140,7 +140,7 @@ int piglatinify(char* word, int length) {
         word[length+1] = 'Y';
     } else {
         word[length] = 'a';
-        word[length+1] = 'y';        
+        word[length+1] = 'y';
     }
     length += 2;
 
@@ -194,7 +194,7 @@ void process_input(char* inp, char* out) {
 
         // (wordStart < 0) means we aren't logging a word
         // So if the current character is a valid word character
-        // mark the current index as the beginning of a word 
+        // mark the current index as the beginning of a word
         if (wordStart < 0 && cur_char_valid) {
             wordStart = inp_index;
         }

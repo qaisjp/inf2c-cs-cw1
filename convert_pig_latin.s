@@ -1,7 +1,7 @@
 #=========================================================================
 # convert_pig_latin.s
 #=========================================================================
-# 
+#
 # Inf2C Computer Systems
 #
 # Qais Patankar - s1620208
@@ -28,7 +28,7 @@ inputmsg:      .asciiz "Enter input: "
 
             # // Maximum characters in an input sentence excluding terminating null character
             # #define MAX_SENTENCE_LENGTH 1000
-MAX_SENTENCE_LENGTH: .word 1000                
+MAX_SENTENCE_LENGTH: .word 1000
             #
             # // Maximum characters in a word excluding terminating null character
             # #define MAX_WORD_LENGTH 50
@@ -75,7 +75,7 @@ read_input:
         la $a0, ($t1)          #          inp,
         la $a1, ($t2)          #          size
         syscall                #      );
-        
+
         jr $ra                 #      return
                                # }
 
@@ -129,7 +129,7 @@ is_valid_character:
                                #
         jr $ra                 #     return $v0;
                                # }
-                               
+
         #------------------------------------------------------------------
         # is_upper_char
         #------------------------------------------------------------------
@@ -156,7 +156,7 @@ is_vowel:
         la $t0, vowels         #     char* vowels = "aeiouAEIOU";
         li $t1, 0              #     int i = 0;
         li $v0, 1              #     $v0 = true; // assume true;
-        
+
 is_vowel_while:                #     while (i < 10) {
         bge $t1, 10, is_vowel_endwhile
                                #
@@ -183,7 +183,7 @@ piglatinify:
                                # {
         # HACK: This is abuse. Move $ra into $fp.
         move $fp, $ra
-        
+
         # Store our args into s0 and s1
         move $s0, $a0          #     $s0 = word
         move $s1, $a1          #     $s1 = length
@@ -192,7 +192,7 @@ piglatinify:
         lb $a0, ($s0)          #     $v0 = is_upper_char(word[0]
         jal is_upper_char      #     );
         move $s2, $v0          #     int firstCapped = $v0; // $s2
-        
+
         # lastCapped           #
         add $t0, $s0, $s1      #     word_address = word + length
         subi $t0, $t0, 1       #     word_address -= 1
@@ -200,11 +200,11 @@ piglatinify:
         move $a0, $t0          #     $v0 = is_upper_char(word[length-1]
         jal is_upper_char      #     );
         move $s3, $v0          #     int lastCapped = $v0; // $s3
-        
+
         # word_index and vowel_index
         li $s4, 0              #     int word_index = 0;
         li $s5, -1             #     int vowel_index = -1;
-        
+
         # // If the first character is capped, but last not, make first character lowercase before moving it around
         not $t0, $s3           #     $t0 = !lastCapped;
         and $t0, $t0, $s2      #     $t0 = !lastCapped && firstCapped;
@@ -223,14 +223,14 @@ piglatin_findvowel_while:      #     while (vowel_index < length) {
                                #
         # increment vowel_index#
         addi $s5, $s5, 1       #         vowel_index += 1;
-        
+
         # break loop if is vowel
         add $t0, $s0, $s5      #         word_address = word + vowel_index
         lb $t0, ($t0)          #         $t0 = *word_address
         move $a0, $t0          #         $a0 = $t0; // = word[vowel_index]);
         jal is_vowel           #         $v0 = is_vowel(word[vowel_index]);
         beq $v0, 1, piglatin_findvowel_endwhile # if is_vowel(word[vowel_index]) break
-        
+
         j piglatin_findvowel_while
 piglatin_findvowel_endwhile:   #     }
                                #
@@ -262,7 +262,7 @@ piglatin_shouldfullcaps_if:    #     if (firstCapped && lastCapped) {
                                #
         li $t0, 'Y'            #
         sb $t0, 1($t1)         #         word[length+1] = 'Y';
-        
+
         j piglatin_shouldfullcaps_endif
 piglatin_shouldfullcaps_else:  #     } else {
         li $t0, 'a'            #
@@ -280,7 +280,7 @@ piglatin_shiftback_while:      #     while (word_index < length) {
                                #
         add $t0, $s0, $s4      #         wordbyte_address += word + word_index;
         sub $t1, $t0, $s5      #         word_address = (word + word_index) - vowel_index;
-        
+
         lb $t0, ($t0)          #         $t0 = *wordbyte_address // $t0 = word[word_index]
         sb $t0, ($t1)          #         *word_address = $t1; // word[word_index - vowel_index] = word[word_index];
                                #
@@ -305,13 +305,13 @@ piglatin_lowerlast_endif:      #     }
                                #
         add $t0, $s0, $s1      #     address = word + length;
         sb $zero, ($t0)        #     *address = '\0'; // word[length] = '\0'
-        
+
         # (UN)HACK: This is abuse. Move the return address in $fp back into $ra.
         move $ra, $fp
-        
+
         # Make sure we set the return value to our accumulated length
         move $v0, $s1          #     $v0 = length;
-        
+
         jr $ra                 #     return $v0;
                                # }
 
@@ -326,7 +326,7 @@ process_input:
         sw $ra 0($sp)           # offset 0 is $ra
         sw $a0 4($sp)          # offset 4 is $a0
         sw $a1 8($sp)          # offset 8 is $a1
-        
+
                                # {
         li $s0, -1             #     int inp_index = -1; // regular iterator through the input, $s0
         lb, $s1, nullchar      #     char cur_char = '\0'; // curr char, $s1
@@ -367,7 +367,7 @@ process_beginword_not: # We jump here if we shouldn't start marking a word
         jal is_valid_character #         $v0 = is_valid_character(next_char);
         seq $t0, $s1, '-'      #         $t0 = (cur_char == ''); // is_hyphen(curr_char) inlined
         and $t0, $t0, $v0      #         $t0 = $t0 && $v0 = is_hyphen(cur_char) && is_valid_character(next_char);
-        
+
         bnez $t0, process_endif_badchar# if (is_hyphen(cur_char) && is_valid_char(inp[inp_index+1])) {
                                #             // jump over this entire if branch.
                                #         } else {
@@ -376,14 +376,14 @@ process_beginword_not: # We jump here if we shouldn't start marking a word
         not $t1, $s4           #             $t1 = !cur_char_valid;
         and $t0, $t0, $t1      #             $t0 = (wordStart >= 0) && !cur_char_valid;
         bne $t0, 1, process_endif_badchar #  if ((wordStart >= 0) && !cur_char_valid) {
-        
+
 process_if_badchar: # // We land here if we are on a word (wordStart >= 0) and if we encounter a bad character (!cur_char_valid)
-        
+
         # // Now we need to start building the word array with our found word
         li $t0, 0              #                 int length = 0; // in $t0
 process_word_while:
         bge $s3, $s0, process_word_endwhile #    while (wordStart < inp_index) {
-        
+
         lw $t1, 4($sp)         #                     inp_address = stack[1]; // stack[1] = inp
         add $t1, $t1, $s3      #                     inp_address += wordStart;
         lb $t1, ($t1)          #                     $t1 = *inp_address // $t1 = inp[wordStart]
@@ -402,7 +402,7 @@ process_word_endwhile:         #
         la $t2, word           #                 word_address = word
         add $t2, $t2, $t0      #                 word_address += length;
         sb $zero, ($t2)        #                 *word_address = 0; // word[length] = '\0';
-        
+
         # Push all our stored variables onto the stack
         addi $sp, $sp, -20
         sw $s0, 0($sp)
@@ -410,13 +410,13 @@ process_word_endwhile:         #
         sw $s2, 8($sp)
         sw $s3, 12($sp)
         sw $s4, 16($sp)
-        
+
         # // Do something to the word
         la $a0, word           #                 $v0 = piglatinify(word,
         move $a1, $t0          #                     length
         jal piglatinify        #                 );
         move $t0, $v0          #                 length = newLength = $v0
-        
+
         # Pop all our stored variables off the stack
         lw $s4, 16($sp)
         lw $s3, 12($sp)
@@ -424,7 +424,7 @@ process_word_endwhile:         #
         lw $s1, 4($sp)
         lw $s0, 0($sp)
         addi $sp, $sp, 20
-        
+
         # // We need to append `word` to `out`.
         # // Reuse wordStart to refer to the progress through `word` so far.
         li $s3, 0              #                 wordStart = 0;
@@ -440,14 +440,14 @@ process_appendword_while:
         lw $t2, 8($sp)        #                      out_address = stack[2] // stack[2] = out
         add $t2, $t2, $s2      #                     out_address += out_index;
         sb $t1, ($t2)          #                     *out_address = $t1; // out[out_index] = word[wordStart];
-        
+
         # // Increment the progress through `word`, and index of `out`.
         addi $s2, $s2, 1       #                     out_index += 1;
         addi $s3, $s3, 1       #                     wordStart += 1;
-        
+
         j process_appendword_while #             }
 process_appendword_endwhile:   #
-        
+
         li $s3, -1             #                 wordStart = -1;
                                #             }
                                #         }
@@ -472,7 +472,7 @@ process_loop_thinkwhile:       #
         sne $t1, $s1, $t1      #         // $t1 = curr_char != '\n';
         and $t0, $t0, $t1      #         // $t0 = (curr_char != '\0') && (curr_char != '\n');
         bnez $t0, process_loop_do #      while ((cur_char != '\n') && (cur_char != '\0'))
-        
+
 process_loop_enddo:
         # Done with the while loop? Revive return address from the stack, and jump back.
         lw $ra, 0($sp)         #     // Correct $ra is offset 0.
@@ -485,7 +485,7 @@ process_loop_enddo:
 
         .globl main           # Declare main label to be globally visible.
                               # Needed for correct operation with MARS
-                 
+
 main:
         #------------------------------------------------------------------
         # Registers allocated for global variables
@@ -498,8 +498,8 @@ main:
         # // $s1 - marks if the sentence is processed
         # int end_of_sentence = false;
         li $s1, 0
-        
-        
+
+
         #------------------------------------------------------------------
         # main function
         #------------------------------------------------------------------
@@ -523,8 +523,8 @@ main:
         jal process_input      #     );
                                #
         la $a0, output_sentence#     $a0 = output_sentence;
-        jal output             #     output(output_sentence);                                
-                               
+        jal output             #     output(output_sentence);
+
         li   $v0, 10           #     return 0;
         syscall                # }
 
